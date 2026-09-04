@@ -41,21 +41,15 @@ export default function Login() {
       "-=0.6"
     );
 
-    // Draw the lines in
-    tl.fromTo('.motif-path', 
-      { strokeDasharray: 1200, strokeDashoffset: 1200 },
-      { strokeDashoffset: 0, duration: 3, ease: 'power2.out', stagger: 0.2 },
-      "-=1.0"
-    );
-
-    // Gentle breathing/floating effect after drawing
-    gsap.to('.bg-motif svg', {
-      y: 15,
-      x: -10,
-      duration: 6,
+    // Gentle breathing/floating effect for the individual paths
+    gsap.to('.motif-path', {
+      y: 20,
+      x: -30,
+      duration: 8,
       repeat: -1,
       yoyo: true,
-      ease: 'sine.inOut'
+      ease: 'sine.inOut',
+      stagger: 1.5
     });
   }, { scope: containerRef });
 
