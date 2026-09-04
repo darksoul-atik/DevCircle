@@ -1,25 +1,12 @@
-import { useEffect, useState } from "react";
-import Particles, { initParticlesEngine } from "@tsparticles/react";
+import Particles, { ParticlesProvider } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
 export default function AnimatedBackground() {
-  const [init, setInit] = useState(false);
-
-  useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      // loadSlim handles the basic shapes and lines without the heavy physics
-      await loadSlim(engine);
-    }).then(() => {
-      setInit(true);
-    });
-  }, []);
-
-  if (!init) return null;
-
   return (
-    <Particles
-      id="tsparticles"
-      className="absolute inset-0 w-full h-full -z-10"
+    <ParticlesProvider init={async (engine) => await loadSlim(engine)}>
+      <Particles
+        id="tsparticles"
+        className="absolute inset-0 w-full h-full -z-10"
       options={{
         background: {
           color: {
@@ -83,5 +70,6 @@ export default function AnimatedBackground() {
         detectRetina: true,
       }}
     />
+    </ParticlesProvider>
   );
 }
