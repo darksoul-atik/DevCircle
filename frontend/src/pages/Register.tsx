@@ -80,7 +80,7 @@ export default function Register() {
         {/* Left Column: Hero Copy */}
         <div className="max-w-lg">
           <div className="mb-10 hero-text-line">
-            <Logo iconSize={36} textSizeClass="text-3xl" />
+            <Logo iconSize={48} textSizeClass="text-5xl" />
           </div>
           <div className="hero-text-line overflow-hidden">
             <h1 className="text-5xl md:text-6xl font-display font-bold text-primary tracking-tight leading-tight mb-2">
