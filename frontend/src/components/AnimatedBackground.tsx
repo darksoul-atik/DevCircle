@@ -1,12 +1,17 @@
-import Particles, { ParticlesProvider } from "@tsparticles/react";
-import { loadSlim } from "@tsparticles/slim";
+import { useCallback } from "react";
+import Particles from "react-tsparticles";
+import { loadSlim } from "tsparticles-slim";
 
 export default function AnimatedBackground() {
+  const particlesInit = useCallback(async (engine: any) => {
+    await loadSlim(engine);
+  }, []);
+
   return (
-    <ParticlesProvider init={async (engine) => await loadSlim(engine)}>
-      <Particles
-        id="tsparticles"
-        className="absolute inset-0 w-full h-full -z-10"
+    <Particles
+      id="tsparticles"
+      init={particlesInit}
+      className="absolute inset-0 w-full h-full -z-10"
       options={{
         background: {
           color: {
@@ -32,13 +37,13 @@ export default function AnimatedBackground() {
         },
         particles: {
           color: {
-            value: "#ea580c", // Tailwind's orange-600 (DevCircle accent)
+            value: "#ea580c", // Tailwind's orange-600
           },
           links: {
             color: "#ea580c",
             distance: 150,
             enable: true,
-            opacity: 0.1,
+            opacity: 0.15,
             width: 1,
           },
           move: {
@@ -55,10 +60,10 @@ export default function AnimatedBackground() {
             density: {
               enable: true,
             },
-            value: 60,
+            value: 80,
           },
           opacity: {
-            value: 0.2,
+            value: 0.3,
           },
           shape: {
             type: "circle",
@@ -70,6 +75,5 @@ export default function AnimatedBackground() {
         detectRetina: true,
       }}
     />
-    </ParticlesProvider>
   );
 }
