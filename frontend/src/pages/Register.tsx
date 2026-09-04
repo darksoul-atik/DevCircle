@@ -4,7 +4,7 @@ import client from '../api/client';
 import { useNavigate, Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
-import { FiArrowRight, FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi';
+import { FiArrowRight, FiEye, FiEyeOff, FiAlertCircle, FiUpload, FiX } from 'react-icons/fi';
 import { Logo, DarkModeToggle } from '../components/Layout';
 import AnimatedBackground from '../components/AnimatedBackground';
 import { useDarkMode } from '../hooks/useDarkMode';
@@ -21,13 +21,50 @@ export default function Register() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [avatar, setAvatar] = useState('');
-
-  // Generate random stable seeds for the session
-  const [avatarOptions] = useState(() => 
-    Array.from({ length: 5 }, () => Math.random().toString(36).substring(7))
-  );
-
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const MAX_SIZE = 256;
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > MAX_SIZE) {
+            height *= MAX_SIZE / width;
+            width = MAX_SIZE;
+          }
+        } else {
+          if (height > MAX_SIZE) {
+            width *= MAX_SIZE / height;
+            height = MAX_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          setAvatar(dataUrl);
+        }
+      };
+      if (event.target?.result) {
+        img.src = event.target.result as string;
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   useGSAP(() => {
     const tl = gsap.timeline();
@@ -66,7 +103,11 @@ export default function Register() {
     setLoading(true);
     try {
       const payload: any = { name, email, password };
-      if (avatar) payload.avatar = avatar;
+      if (avatar) {
+        payload.avatar = avatar;
+      } else {
+        payload.avatar = `https://api.dicebear.com/9.x/notionists/svg?seed=${encodeURIComponent(name || 'Dev')}&backgroundColor=transparent`;
+      }
       const res = await client.post('/auth/register', payload);
       login(res.data.data.accessToken, res.data.data.user);
       navigate('/');
@@ -121,27 +162,41 @@ export default function Register() {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="block text-xs font-mono text-muted mb-3 uppercase tracking-wider">Select Avatar (Optional)</label>
-              <div className="flex items-center gap-3">
-                {avatarOptions.map((seed) => {
-                  const url = `https://api.dicebear.com/9.x/notionists/svg?seed=${seed}&backgroundColor=transparent`;
-                  return (
-                    <button
-                      key={seed}
-                      type="button"
-                      onClick={() => setAvatar(url)}
-                      className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
-                        avatar === url 
-                          ? 'border-accent scale-110 shadow-md ring-2 ring-accent/20' 
-                          : 'border-hairline hover:border-muted'
-                      }`}
-                    >
-                      <img src={url} alt="Avatar option" className="w-full h-full object-cover bg-subtle" />
-                    </button>
-                  );
-                })}
+            <div className="flex flex-col items-center justify-center mb-6">
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                ref={fileInputRef}
+                onChange={handleFileChange}
+              />
+              <div 
+                className="relative w-20 h-20 rounded-full border-2 border-dashed border-hairline hover:border-accent hover:bg-subtle transition-colors flex items-center justify-center cursor-pointer overflow-hidden group"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {avatar ? (
+                  <>
+                    <img src={avatar} alt="Avatar preview" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <FiUpload className="text-white" size={20} />
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-muted flex flex-col items-center">
+                    <FiUpload size={20} className="mb-1 group-hover:text-accent transition-colors" />
+                    <span className="text-[10px] font-mono uppercase tracking-wider group-hover:text-accent transition-colors">Upload</span>
+                  </div>
+                )}
               </div>
+              {avatar && (
+                <button 
+                  type="button" 
+                  onClick={(e) => { e.stopPropagation(); setAvatar(''); if (fileInputRef.current) fileInputRef.current.value = ''; }}
+                  className="mt-2 text-xs text-muted hover:text-red-500 transition-colors flex items-center gap-1"
+                >
+                  <FiX /> Remove
+                </button>
+              )}
             </div>
             
             <div>

@@ -10,7 +10,7 @@ const registerSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
-  avatar: z.string().url().optional(),
+  avatar: z.string().optional(),
 });
 
 const loginSchema = z.object({
