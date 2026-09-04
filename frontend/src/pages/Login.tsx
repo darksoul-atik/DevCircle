@@ -21,13 +21,13 @@ export default function Login() {
 
   useGSAP(() => {
     const tl = gsap.timeline();
-    
+
     // Stagger typography and form
-    tl.fromTo('.hero-text-line', 
+    tl.fromTo('.hero-text-line',
       { y: 20, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
     );
-    
+
     tl.fromTo('.hero-form',
       { y: 10, opacity: 0 },
       { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
@@ -112,19 +112,19 @@ export default function Login() {
         {/* Right Column: Auth Form */}
         <div className="hero-form max-w-sm w-full bg-subtle/50 backdrop-blur-sm border border-hairline p-8 rounded-xl shadow-sm">
           <h2 className="text-xl font-display font-medium text-primary mb-6">Sign in to your account</h2>
-          
+
           {error && (
             <div className="mb-6 p-3 bg-red-500/10 text-red-600 dark:text-red-400 rounded-md text-sm font-medium border border-red-500/20 flex items-start gap-2">
               <FiAlertCircle className="mt-0.5 shrink-0" />
               <span>{error}</span>
             </div>
           )}
-          
+
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <label className="block text-xs font-mono text-muted mb-1.5 uppercase tracking-wider">Email</label>
-              <input 
-                type="email" 
+              <input
+                type="email"
                 required
                 className="w-full px-4 py-2 border border-hairline rounded-md bg-base text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm"
                 value={email}
@@ -134,8 +134,8 @@ export default function Login() {
             <div>
               <label className="block text-xs font-mono text-muted mb-1.5 uppercase tracking-wider">Password</label>
               <div className="relative">
-                <input 
-                  type={showPassword ? "text" : "password"} 
+                <input
+                  type={showPassword ? "text" : "password"}
                   required
                   className="w-full pl-4 pr-10 py-2 border border-hairline rounded-md bg-base text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm"
                   value={password}
@@ -151,8 +151,8 @@ export default function Login() {
                 </button>
               </div>
             </div>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               disabled={loading}
               className="w-full bg-accent text-white py-2.5 rounded-md hover:bg-accent/90 disabled:opacity-50 transition-colors font-medium flex justify-center items-center gap-2 group"
             >
@@ -160,7 +160,7 @@ export default function Login() {
               {!loading && <FiArrowRight className="group-hover:translate-x-1 transition-transform" />}
             </button>
           </form>
-          
+
           <div className="mt-8 pt-6 border-t border-hairline text-center">
             <p className="text-sm font-mono text-muted">
               Don't have an account? <Link to="/register" className="text-primary font-medium hover:text-accent transition-colors">Register</Link>
