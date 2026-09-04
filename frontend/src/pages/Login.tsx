@@ -1,8 +1,10 @@
-import { useState } from 'react';
-import { z } from 'zod';
+import { useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 import client from '../api/client';
 import { useNavigate, Link } from 'react-router-dom';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+import { FiArrowRight } from 'react-icons/fi';
 
 export default function Login() {
   const [error, setError] = useState('');
@@ -12,6 +14,31 @@ export default function Login() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(() => {
+    const tl = gsap.timeline();
+    
+    // Stagger typography and form
+    tl.fromTo('.hero-text-line', 
+      { y: 20, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.8, stagger: 0.15, ease: 'power3.out' }
+    );
+    
+    tl.fromTo('.hero-form',
+      { y: 10, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out' },
+      "-=0.4"
+    );
+
+    // Subtle graph motif animation (opacity fade in)
+    tl.fromTo('.bg-motif',
+      { opacity: 0 },
+      { opacity: 1, duration: 1.5, ease: 'power2.inOut' },
+      "-=0.6"
+    );
+  }, { scope: containerRef });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,41 +56,78 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 w-full max-w-sm">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login to DevCircle</h2>
-        {error && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md text-sm">{error}</div>}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <input 
-              type="email" 
-              required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+    <div ref={containerRef} className="min-h-[calc(100vh-4rem)] flex flex-col justify-center relative overflow-hidden">
+      {/* Background Motif: "Ranked Activity" Graph/Line concept */}
+      <div className="bg-motif absolute top-0 right-0 bottom-0 left-1/2 -z-10 pointer-events-none hidden md:block">
+        <svg viewBox="0 0 800 600" className="w-full h-full opacity-10 stroke-primary/30" preserveAspectRatio="none">
+          <path d="M0,500 Q100,450 200,480 T400,300 T600,200 T800,100" fill="none" strokeWidth="2" />
+          <path d="M0,550 Q150,550 250,500 T500,400 T700,250 T800,180" fill="none" strokeWidth="1" />
+          <path d="M0,580 Q200,580 300,530 T600,450 T800,280" fill="none" strokeWidth="1" strokeDasharray="4 4" />
+        </svg>
+      </div>
+
+      <div className="max-w-5xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        {/* Left Column: Hero Copy */}
+        <div className="max-w-lg">
+          <div className="hero-text-line overflow-hidden">
+            <h1 className="text-5xl md:text-6xl font-display font-bold text-primary tracking-tight leading-tight mb-2">
+              Where developers
+            </h1>
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <input 
-              type="password" 
-              required
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-transparent"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
+          <div className="hero-text-line overflow-hidden">
+            <h1 className="text-5xl md:text-6xl font-display font-bold text-primary tracking-tight leading-tight mb-6">
+              share the signal.
+            </h1>
           </div>
-          <button 
-            type="submit" 
-            disabled={loading}
-            className="w-full bg-purple-600 text-white py-2 rounded-md hover:bg-purple-700 disabled:opacity-50"
-          >
-            {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
-        <div className="mt-4 text-center text-sm">
-          Don't have an account? <Link to="/register" className="text-purple-600 hover:underline">Register</Link>
+          <div className="hero-text-line">
+            <p className="text-lg text-muted leading-relaxed font-sans mb-8">
+              A community feed ranked by actual value, not engagement bait. Join DevCircle to discuss the code that matters.
+            </p>
+          </div>
+        </div>
+
+        {/* Right Column: Auth Form */}
+        <div className="hero-form max-w-sm w-full bg-subtle/50 backdrop-blur-sm border border-hairline p-8 rounded-xl shadow-sm">
+          <h2 className="text-xl font-display font-medium text-primary mb-6">Sign in to your account</h2>
+          
+          {error && <div className="mb-6 p-3 bg-red-100 text-red-700 rounded-md text-sm font-medium border border-red-200">{error}</div>}
+          
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-mono text-muted mb-1.5 uppercase tracking-wider">Email</label>
+              <input 
+                type="email" 
+                required
+                className="w-full px-4 py-2 border border-hairline rounded-md bg-base text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-mono text-muted mb-1.5 uppercase tracking-wider">Password</label>
+              <input 
+                type="password" 
+                required
+                className="w-full px-4 py-2 border border-hairline rounded-md bg-base text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all text-sm"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+            <button 
+              type="submit" 
+              disabled={loading}
+              className="w-full bg-accent text-white py-2.5 rounded-md hover:bg-accent/90 disabled:opacity-50 transition-colors font-medium flex justify-center items-center gap-2 group"
+            >
+              {loading ? 'Authenticating...' : 'Sign In'}
+              {!loading && <FiArrowRight className="group-hover:translate-x-1 transition-transform" />}
+            </button>
+          </form>
+          
+          <div className="mt-8 pt-6 border-t border-hairline text-center">
+            <p className="text-sm font-mono text-muted">
+              Don't have an account? <Link to="/register" className="text-primary font-medium hover:text-accent transition-colors">Register</Link>
+            </p>
+          </div>
         </div>
       </div>
     </div>

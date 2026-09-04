@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import client from '../api/client';
 import ReactMarkdown from 'react-markdown';
-import { MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { FiMessageSquare, FiHeart, FiArrowDown, FiCornerDownRight } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import gsap from 'gsap';
 
 interface Reaction {
   id: string;
@@ -40,6 +41,9 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
   const [replyBody, setReplyBody] = useState('');
   const queryClient = useQueryClient();
   const { user } = useAuth();
+  
+  const likeIconRef = useRef<SVGElement>(null);
+  const dislikeIconRef = useRef<SVGElement>(null);
 
   const replyMutation = useMutation({
     mutationFn: (body: string) => client.post(`/posts/${postId}/comments`, { body, parentCommentId: comment.id }),
@@ -54,10 +58,15 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
     mutationFn: (type: 'like' | 'dislike') => 
       client.post('/reactions', { targetType: 'comment', targetId: comment.id, type }),
     onMutate: async (type) => {
+      // GSAP bounce
+      const targetRef = type === 'like' ? likeIconRef.current : dislikeIconRef.current;
+      if (targetRef) {
+        gsap.fromTo(targetRef, { scale: 1 }, { scale: 1.25, duration: 0.1, yoyo: true, repeat: 1 });
+      }
+
       await queryClient.cancelQueries({ queryKey: ['comments', postId] });
       const previousComments = queryClient.getQueryData(['comments', postId]);
 
-      // Optimistic update function for a nested tree
       const updateTree = (nodes: Comment[]): Comment[] => {
         return nodes.map(node => {
           if (node.id === comment.id) {
@@ -69,18 +78,15 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
             if (existingIndex > -1) {
               const existing = newReactions[existingIndex];
               if (existing.type === type) {
-                // Remove
                 newReactions.splice(existingIndex, 1);
                 if (type === 'like') newLikeCount--;
                 if (type === 'dislike') newDislikeCount--;
               } else {
-                // Switch
                 newReactions[existingIndex] = { ...existing, type };
                 if (type === 'like') { newLikeCount++; newDislikeCount--; }
                 if (type === 'dislike') { newDislikeCount++; newLikeCount--; }
               }
             } else {
-              // Add
               newReactions.push({ id: 'temp', type, userId: user!.id });
               if (type === 'like') newLikeCount++;
               if (type === 'dislike') newDislikeCount++;
@@ -114,45 +120,52 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
   const userReaction = comment.reactions?.find(r => r.userId === user?.id)?.type;
 
   return (
-    <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 py-2 mt-4">
-      <div className="flex justify-between items-center mb-2">
-        <span className="text-sm font-semibold">{comment.author.name}</span>
-        <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleDateString()}</span>
-      </div>
-      <p className="text-sm mb-2">{comment.body}</p>
+    <div className="border-l border-hairline pl-4 py-3 mt-2 relative">
+      {/* Structural connector */}
+      <div className="absolute -left-[1px] top-4 w-[1px] h-4 bg-hairline"></div>
       
-      <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
+      <div className="flex items-center gap-2 mb-1.5 font-mono text-xs text-muted">
+        <span className="font-medium text-primary">@{comment.author.name.toLowerCase().replace(/\s/g, '')}</span>
+        <span>·</span>
+        <time>{new Date(comment.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</time>
+      </div>
+      
+      <p className="text-sm text-primary leading-relaxed mb-2">{comment.body}</p>
+      
+      <div className="flex items-center gap-4 text-xs font-mono text-muted">
         <button 
           onClick={() => user && toggleReaction.mutate('like')}
-          className={`flex items-center gap-1 hover:text-purple-600 ${userReaction === 'like' ? 'text-purple-600' : ''}`}
+          className={`flex items-center gap-1.5 transition-colors ${userReaction === 'like' ? 'text-accent' : 'hover:text-primary'}`}
+          disabled={!user}
         >
-          <ThumbsUp size={14} /> {comment.likeCount}
+          <FiHeart ref={likeIconRef} size={13} /> {comment.likeCount}
         </button>
         <button 
           onClick={() => user && toggleReaction.mutate('dislike')}
-          className={`flex items-center gap-1 hover:text-purple-600 ${userReaction === 'dislike' ? 'text-purple-600' : ''}`}
+          className={`flex items-center gap-1.5 transition-colors ${userReaction === 'dislike' ? 'text-accent' : 'hover:text-primary'}`}
+          disabled={!user}
         >
-          <ThumbsDown size={14} /> {comment.dislikeCount}
+          <FiArrowDown ref={dislikeIconRef} size={13} /> {comment.dislikeCount}
         </button>
         {user && (
-          <button onClick={() => setIsReplying(!isReplying)} className="font-medium hover:text-purple-600">
-            Reply
+          <button onClick={() => setIsReplying(!isReplying)} className="flex items-center gap-1 hover:text-primary transition-colors">
+            <FiCornerDownRight size={13} /> Reply
           </button>
         )}
       </div>
 
       {isReplying && (
-        <form onSubmit={handleSubmit} className="mt-2 mb-4">
+        <form onSubmit={handleSubmit} className="mt-4 mb-2">
           <textarea
-            className="w-full text-sm p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-transparent"
+            className="w-full text-sm px-3 py-2 border border-hairline rounded-md bg-subtle focus:outline-none focus:border-accent"
             rows={2}
             placeholder="Write a reply..."
             value={replyBody}
             onChange={(e) => setReplyBody(e.target.value)}
           />
           <div className="flex gap-2 mt-2 justify-end">
-            <button type="button" onClick={() => setIsReplying(false)} className="text-xs text-gray-500">Cancel</button>
-            <button type="submit" disabled={replyMutation.isPending} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-md">
+            <button type="button" onClick={() => setIsReplying(false)} className="text-xs font-medium text-muted hover:text-primary">Cancel</button>
+            <button type="submit" disabled={replyMutation.isPending} className="text-xs font-medium bg-accent text-white px-3 py-1.5 rounded-md hover:bg-accent/90">
               {replyMutation.isPending ? 'Replying...' : 'Reply'}
             </button>
           </div>
@@ -160,7 +173,7 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
       )}
 
       {comment.replies && comment.replies.length > 0 && (
-        <div className="ml-2">
+        <div className="mt-1">
           {comment.replies.map(reply => (
             <CommentNode key={reply.id} comment={reply} postId={postId} />
           ))}
@@ -175,6 +188,9 @@ export default function PostDetail() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [commentBody, setCommentBody] = useState('');
+  
+  const likeIconRef = useRef<SVGElement>(null);
+  const dislikeIconRef = useRef<SVGElement>(null);
 
   const { data: post, isLoading: postLoading } = useQuery<Post>({
     queryKey: ['post', id],
@@ -205,6 +221,12 @@ export default function PostDetail() {
     mutationFn: (type: 'like' | 'dislike') => 
       client.post('/reactions', { targetType: 'post', targetId: id, type }),
     onMutate: async (type) => {
+      // GSAP bounce
+      const targetRef = type === 'like' ? likeIconRef.current : dislikeIconRef.current;
+      if (targetRef) {
+        gsap.fromTo(targetRef, { scale: 1 }, { scale: 1.25, duration: 0.1, yoyo: true, repeat: 1 });
+      }
+
       await queryClient.cancelQueries({ queryKey: ['post', id] });
       const previousPost = queryClient.getQueryData<Post>(['post', id]);
 
@@ -257,82 +279,110 @@ export default function PostDetail() {
     commentMutation.mutate(commentBody);
   };
 
-  if (postLoading) return <div className="max-w-3xl mx-auto py-8 px-4 animate-pulse bg-gray-200 dark:bg-gray-800 h-64 rounded-lg"></div>;
-  if (!post) return <div className="max-w-3xl mx-auto py-8 px-4 text-center text-red-600">Post not found</div>;
+  if (postLoading) {
+    return (
+      <div className="max-w-[72ch] mx-auto py-12 px-4 animate-pulse space-y-4">
+        <div className="h-10 w-3/4 bg-subtle rounded"></div>
+        <div className="h-4 w-1/4 bg-subtle rounded mb-8"></div>
+        <div className="h-4 w-full bg-subtle rounded"></div>
+        <div className="h-4 w-full bg-subtle rounded"></div>
+        <div className="h-4 w-5/6 bg-subtle rounded"></div>
+      </div>
+    );
+  }
+  
+  if (!post) return <div className="max-w-3xl mx-auto py-12 px-4 text-center text-muted">Post not found</div>;
 
   const userPostReaction = post.reactions?.find(r => r.userId === user?.id)?.type;
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 mb-8">
-        <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-        <p className="text-sm text-gray-500 mb-8 border-b border-gray-200 dark:border-gray-700 pb-4">
-          Posted by {post.author.name} • {new Date(post.createdAt).toLocaleDateString()}
-        </p>
+    <div className="max-w-[72ch] mx-auto py-12 px-4 relative pb-32">
+      <article className="mb-12">
+        <h1 className="text-4xl font-display font-bold tracking-tight text-primary mb-4 leading-tight">
+          {post.title}
+        </h1>
         
-        <div className="prose dark:prose-invert max-w-none mb-8">
+        <div className="flex items-center gap-2 text-sm font-mono text-muted border-b border-hairline pb-6 mb-8">
+          <span className="font-medium text-primary">@{post.author.name.toLowerCase().replace(/\s/g, '')}</span>
+          <span>·</span>
+          <time>{new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+        </div>
+        
+        <div className="prose prose-p:text-primary prose-headings:font-display prose-headings:text-primary prose-a:text-accent prose-code:text-primary prose-code:bg-subtle prose-code:px-1 prose-code:py-0.5 prose-code:rounded max-w-none text-base leading-relaxed">
           <ReactMarkdown>{post.body}</ReactMarkdown>
         </div>
+      </article>
 
-        <div className="flex gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
-          <button 
-            onClick={() => user && postReactionMutation.mutate('like')}
-            className={`flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors ${userPostReaction === 'like' ? 'text-purple-600' : ''}`}
-          >
-            <ThumbsUp size={18} /> <span>{post.likeCount}</span>
-          </button>
-          <button 
-            onClick={() => user && postReactionMutation.mutate('dislike')}
-            className={`flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors ${userPostReaction === 'dislike' ? 'text-purple-600' : ''}`}
-          >
-            <ThumbsDown size={18} /> <span>{post.dislikeCount}</span>
-          </button>
-          <div className="flex items-center gap-2 text-gray-500 ml-auto">
-            <MessageSquare size={18} /> <span>{post.commentCount} Comments</span>
-          </div>
+      {/* Floating Reaction Bar (Glassmorphism) */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-subtle/70 backdrop-blur-md border border-hairline shadow-sm rounded-full px-6 py-2.5 flex items-center gap-6 text-sm font-mono text-muted">
+        <button 
+          onClick={() => user && postReactionMutation.mutate('like')}
+          disabled={!user}
+          className={`flex items-center gap-2 transition-colors ${userPostReaction === 'like' ? 'text-accent' : 'hover:text-primary'}`}
+          title={user ? 'Like' : 'Login to like'}
+        >
+          <FiHeart ref={likeIconRef} size={18} /> <span>{post.likeCount}</span>
+        </button>
+        <button 
+          onClick={() => user && postReactionMutation.mutate('dislike')}
+          disabled={!user}
+          className={`flex items-center gap-2 transition-colors ${userPostReaction === 'dislike' ? 'text-accent' : 'hover:text-primary'}`}
+          title={user ? 'Dislike' : 'Login to dislike'}
+        >
+          <FiArrowDown ref={dislikeIconRef} size={18} /> <span>{post.dislikeCount}</span>
+        </button>
+        <div className="w-px h-4 bg-hairline"></div>
+        <div className="flex items-center gap-2 text-primary" title="Comments">
+          <FiMessageSquare size={18} /> <span>{post.commentCount}</span>
         </div>
       </div>
       
-      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
-        <h2 className="text-xl font-bold mb-6">Comments</h2>
+      <section className="pt-8 border-t border-hairline">
+        <h2 className="text-xl font-display font-medium text-primary mb-8">Discussion</h2>
         
         {user ? (
-          <form onSubmit={handleCommentSubmit} className="mb-8">
+          <form onSubmit={handleCommentSubmit} className="mb-10">
             <textarea
-              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md bg-transparent"
+              className="w-full px-4 py-3 border border-hairline rounded-md bg-subtle focus:outline-none focus:border-accent text-sm"
               rows={3}
               placeholder="Add to the discussion..."
               value={commentBody}
               onChange={(e) => setCommentBody(e.target.value)}
             />
-            <div className="flex justify-end mt-2">
+            <div className="flex justify-end mt-3">
               <button 
                 type="submit" 
-                disabled={commentMutation.isPending}
-                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 disabled:opacity-50"
+                disabled={commentMutation.isPending || !commentBody.trim()}
+                className="bg-accent text-white px-5 py-2 text-sm font-medium rounded-md hover:bg-accent/90 disabled:opacity-50 transition-colors"
               >
                 {commentMutation.isPending ? 'Posting...' : 'Post Comment'}
               </button>
             </div>
           </form>
         ) : (
-          <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-md text-sm text-center">
+          <div className="mb-10 p-6 border border-hairline border-dashed rounded-md text-sm text-center text-muted">
             Log in to join the discussion.
           </div>
         )}
 
         {commentsLoading ? (
-          <div className="animate-pulse bg-gray-200 dark:bg-gray-800 h-24 rounded-lg"></div>
+          <div className="animate-pulse space-y-4">
+            <div className="h-20 w-full bg-subtle rounded"></div>
+            <div className="h-20 w-full bg-subtle rounded"></div>
+          </div>
         ) : comments?.length === 0 ? (
-          <p className="text-gray-500 text-center py-4">No comments yet.</p>
+          <div className="py-8 text-center text-muted text-sm">
+            <FiMessageSquare size={24} className="mx-auto mb-3 opacity-50" />
+            No comments yet.
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-4">
             {comments?.map((comment: Comment) => (
               <CommentNode key={comment.id} comment={comment} postId={id as string} />
             ))}
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

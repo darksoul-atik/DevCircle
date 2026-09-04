@@ -1,9 +1,63 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  --color-base: var(--bg-base);
+  --color-subtle: var(--bg-subtle);
+  --color-primary: var(--text-primary);
+  --color-muted: var(--text-muted);
+  --color-accent: var(--accent-primary);
+  --color-signal: var(--accent-signal);
+  --color-hairline: var(--border-hairline);
+
+  --font-display: "Space Grotesk", sans-serif;
+  --font-sans: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
 
 @layer base {
+  :root {
+    --bg-base: #FFFFFF;
+    --bg-subtle: #F6F7F9;
+    --text-primary: #14171F;
+    --text-muted: #5B6270;
+    --accent-primary: #4F46E5;
+    --accent-signal: #EA580C;
+    --border-hairline: #E5E7EB;
+  }
+  
+  .dark {
+    --bg-base: #0F1115;
+    --bg-subtle: #1A1D23;
+    --text-primary: #F2F3F5;
+    --text-muted: #9095A3;
+    --accent-primary: #818CF8;
+    --accent-signal: #FB923C;
+    --border-hairline: #2A2E37;
+  }
+
   body {
-    @apply bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100;
+    background-color: var(--color-base);
+    color: var(--color-primary);
+    font-family: var(--font-sans);
+  }
+  
+  /* Headings map to display font */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer utilities {
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .animate-in {
+    animation-duration: 150ms;
+    animation-timing-function: ease-in-out;
+    animation-fill-mode: both;
+  }
+  .fade-in {
+    animation-name: fadeIn;
   }
 }

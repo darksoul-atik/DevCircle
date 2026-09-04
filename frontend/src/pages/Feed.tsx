@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 import { Link } from 'react-router-dom';
-import { MessageSquare, ThumbsUp, ThumbsDown, Plus } from 'lucide-react';
+import { FiMessageSquare, FiHeart, FiArrowDown, FiChevronLeft, FiChevronRight, FiSearch, FiEdit3 } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
 
 interface Post {
   id: string;
@@ -16,9 +17,25 @@ interface Post {
   createdAt: string;
 }
 
+function FeedSkeleton() {
+  return (
+    <div className="animate-pulse space-y-6">
+      {[1, 2, 3].map(i => (
+        <div key={i} className="py-6 border-b border-hairline flex flex-col gap-3">
+          <div className="h-4 w-48 bg-subtle rounded"></div>
+          <div className="h-6 w-3/4 bg-subtle rounded"></div>
+          <div className="h-4 w-full bg-subtle rounded"></div>
+          <div className="h-4 w-32 bg-subtle rounded mt-2"></div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function Feed() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
+  const { user } = useAuth();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['posts', page, search],
@@ -35,81 +52,117 @@ export default function Feed() {
 
   if (isError) {
     return (
-      <div className="p-8 text-center text-red-600">
-        <p>Failed to load posts: {(error as any)?.response?.data?.message || 'Unknown error'}</p>
-        <button onClick={() => window.location.reload()} className="mt-4 text-purple-600 hover:underline">Retry</button>
+      <div className="max-w-3xl mx-auto py-12 px-4 text-center">
+        <p className="text-muted mb-4">Error loading the feed: {(error as any)?.response?.data?.message || 'Server unreachable'}</p>
+        <button onClick={() => window.location.reload()} className="px-4 py-2 border border-hairline rounded-md text-sm font-medium hover:bg-subtle transition-colors">
+          Retry Connection
+        </button>
       </div>
     );
   }
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
-      <div className="flex justify-between items-center mb-8">
-        <h1 className="text-3xl font-bold">Community Feed</h1>
-        <Link to="/posts/new" className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center gap-2">
-          <Plus size={18} /> New Post
-        </Link>
-      </div>
-
-      <form onSubmit={handleSearch} className="mb-8 flex gap-2">
-        <input
-          type="text"
-          placeholder="Search posts..."
-          className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md bg-transparent"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <button type="submit" className="px-4 py-2 bg-gray-200 dark:bg-gray-800 rounded-md hover:bg-gray-300 dark:hover:bg-gray-700">
-          Search
-        </button>
-      </form>
+      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-3xl font-bold font-display tracking-tight text-primary">Discussions</h1>
+        
+        <div className="flex items-center gap-3 w-full md:w-auto">
+          <form onSubmit={handleSearch} className="relative flex-1 md:w-64">
+            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-9 pr-4 py-1.5 text-sm border border-hairline rounded-md bg-subtle text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </form>
+          {user && (
+            <Link to="/posts/new" className="shrink-0 bg-primary text-base px-3 py-1.5 border border-hairline rounded-md hover:bg-subtle transition-colors flex items-center gap-2">
+              <FiEdit3 size={16} className="text-muted" /> <span className="text-sm font-medium">New</span>
+            </Link>
+          )}
+        </div>
+      </header>
 
       {isLoading ? (
-        <div className="space-y-4">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="animate-pulse bg-gray-200 dark:bg-gray-800 h-32 rounded-lg"></div>
-          ))}
-        </div>
+        <FeedSkeleton />
       ) : data?.items.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-800">
-          <p className="text-gray-500 mb-4">No posts found.</p>
-          <Link to="/posts/new" className="text-purple-600 font-medium hover:underline">Be the first to post!</Link>
+        <div className="py-16 text-center border border-hairline border-dashed rounded-lg">
+          <FiMessageSquare size={24} className="mx-auto text-muted mb-4" />
+          <h3 className="text-primary font-medium mb-1">No discussions found</h3>
+          <p className="text-sm text-muted mb-4">It's quiet here. Be the first to start a conversation.</p>
+          {user && (
+            <Link to="/posts/new" className="text-sm text-accent hover:underline">
+              Write a post
+            </Link>
+          )}
         </div>
       ) : (
-        <div className="space-y-4">
-          {data?.items.map((post: Post) => (
-            <Link key={post.id} to={`/posts/${post.id}`} className="block bg-white dark:bg-gray-800 p-6 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 hover:border-purple-500 transition-colors">
-              <h2 className="text-xl font-bold mb-2">{post.title}</h2>
-              <p className="text-sm text-gray-500 mb-4">
-                Posted by {post.author.name} • {new Date(post.createdAt).toLocaleDateString()} • Rank Score: {post.score}
-              </p>
-              <div className="flex gap-6 text-sm text-gray-500">
-                <span className="flex items-center gap-1"><ThumbsUp size={16} /> {post.likeCount}</span>
-                <span className="flex items-center gap-1"><ThumbsDown size={16} /> {post.dislikeCount}</span>
-                <span className="flex items-center gap-1"><MessageSquare size={16} /> {post.commentCount}</span>
-              </div>
-            </Link>
-          ))}
+        <div className="flex flex-col">
+          {data?.items.map((post: Post) => {
+            const isHot = post.score >= 5; // Example threshold for signal
+            return (
+              <Link 
+                key={post.id} 
+                to={`/posts/${post.id}`} 
+                className={`group block py-6 border-b border-hairline transition-colors hover:bg-subtle/50 relative ${isHot ? 'pl-4' : ''}`}
+              >
+                {/* Ranking Signal Indicator */}
+                {isHot && (
+                  <div className="absolute left-0 top-6 bottom-6 w-1 bg-signal rounded-r-sm" title="Trending"></div>
+                )}
+                
+                <div className="flex items-center gap-2 text-xs font-mono text-muted mb-2">
+                  <span className="text-primary font-medium">@{post.author.name.toLowerCase().replace(/\s/g, '')}</span>
+                  <span>·</span>
+                  <time>{new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</time>
+                  {isHot && (
+                    <>
+                      <span>·</span>
+                      <span className="text-signal flex items-center gap-1">Trending</span>
+                    </>
+                  )}
+                </div>
+
+                <h2 className="text-xl font-display font-medium text-primary mb-2 group-hover:text-accent transition-colors">
+                  {post.title}
+                </h2>
+                
+                <p className="text-sm text-muted line-clamp-2 leading-relaxed mb-4">
+                  {post.body}
+                </p>
+
+                <div className="flex gap-4 text-xs font-mono text-muted">
+                  <span className="flex items-center gap-1.5"><FiHeart size={14} /> {post.likeCount}</span>
+                  <span className="flex items-center gap-1.5"><FiArrowDown size={14} /> {post.dislikeCount}</span>
+                  <span className="flex items-center gap-1.5"><FiMessageSquare size={14} /> {post.commentCount}</span>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
 
-      {/* Basic Pagination */}
-      {data && data.total > 10 && (
-        <div className="mt-8 flex justify-between items-center">
+      {/* Pagination */}
+      {data && data.total > data.limit && (
+        <div className="mt-12 flex justify-between items-center border-t border-hairline pt-6">
           <button 
             disabled={page === 1}
             onClick={() => setPage(p => p - 1)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium border border-hairline rounded hover:bg-subtle disabled:opacity-30 transition-colors"
           >
-            Previous
+            <FiChevronLeft size={16} /> Prev
           </button>
-          <span>Page {page} of {Math.ceil(data.total / data.limit)}</span>
+          <span className="text-sm font-mono text-muted">
+            {page} / {Math.ceil(data.total / data.limit)}
+          </span>
           <button 
             disabled={page === Math.ceil(data.total / data.limit)}
             onClick={() => setPage(p => p + 1)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 disabled:opacity-50"
+            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium border border-hairline rounded hover:bg-subtle disabled:opacity-30 transition-colors"
           >
-            Next
+            Next <FiChevronRight size={16} />
           </button>
         </div>
       )}

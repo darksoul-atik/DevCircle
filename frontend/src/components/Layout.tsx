@@ -1,36 +1,139 @@
-import { Outlet, Link } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useDarkMode } from '../hooks/useDarkMode';
+import { FiSun, FiMoon, FiSearch, FiUser, FiLogOut } from 'react-icons/fi';
+import gsap from 'gsap';
+import { useGSAP } from '@gsap/react';
+
+function Logo() {
+  return (
+    <Link to="/" className="flex items-center gap-2 group">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent transition-transform group-hover:scale-105">
+        <polyline points="7 8 3 12 7 16" />
+        <polyline points="17 8 21 12 17 16" />
+        <line x1="14" y1="4" x2="10" y2="20" />
+      </svg>
+      <span className="font-display font-bold text-xl tracking-tight text-primary">DevCircle</span>
+    </Link>
+  );
+}
+
+function DarkModeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }) {
+  const iconRef = useRef<HTMLDivElement>(null);
+
+  const handleToggle = () => {
+    // A short rotational cross-fade
+    if (iconRef.current) {
+      gsap.to(iconRef.current, {
+        rotation: "+=180",
+        scale: 0.8,
+        opacity: 0,
+        duration: 0.15,
+        onComplete: () => {
+          toggle();
+          gsap.to(iconRef.current, {
+            rotation: "+=180",
+            scale: 1,
+            opacity: 1,
+            duration: 0.15,
+          });
+        }
+      });
+    } else {
+      toggle();
+    }
+  };
+
+  return (
+    <button 
+      onClick={handleToggle}
+      className="p-2 text-muted hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-md"
+      aria-label="Toggle Dark Mode"
+    >
+      <div ref={iconRef}>
+        {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+      </div>
+    </button>
+  );
+}
 
 export default function Layout() {
   const { user, logout } = useAuth();
+  const { isDark, toggleDarkMode } = useDarkMode();
+  const [scrolled, setScrolled] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 40);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">
+    <div className="min-h-screen flex flex-col bg-base transition-colors duration-200">
+      <header 
+        className={`sticky top-0 z-50 transition-all duration-200 border-b ${
+          scrolled 
+            ? 'bg-base/80 backdrop-blur-md border-hairline' 
+            : 'bg-base border-transparent'
+        }`}
+      >
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold text-purple-600 dark:text-purple-400">DevCircle</Link>
-          <nav className="flex items-center gap-6">
+          <div className="flex items-center gap-8">
+            <Logo />
+            <nav className="hidden md:flex items-center gap-6">
+              {user && (
+                <Link 
+                  to="/" 
+                  className={`text-sm font-medium transition-colors ${location.pathname === '/' ? 'text-primary' : 'text-muted hover:text-primary'}`}
+                >
+                  Feed
+                </Link>
+              )}
+            </nav>
+          </div>
+          
+          <div className="flex items-center gap-4">
+            <button className="p-2 text-muted hover:text-primary transition-colors">
+              <FiSearch size={18} />
+            </button>
+            
+            <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
+
             {user ? (
-              <>
-                <Link to="/" className="text-sm font-medium hover:text-purple-600">Feed</Link>
-                <Link to="/profile/me" className="text-sm font-medium hover:text-purple-600">Profile</Link>
+              <div className="flex items-center gap-3 ml-2 pl-4 border-l border-hairline">
+                <Link to="/profile/me" className="p-2 text-muted hover:text-primary transition-colors" title="Profile">
+                  <FiUser size={18} />
+                </Link>
                 <button 
                   onClick={() => logout()} 
-                  className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
+                  className="p-2 text-muted hover:text-primary transition-colors"
+                  title="Logout"
                 >
-                  Logout
+                  <FiLogOut size={18} />
                 </button>
-              </>
+              </div>
             ) : (
-              <>
-                <Link to="/login" className="text-sm font-medium hover:text-purple-600">Login</Link>
-                <Link to="/register" className="text-sm font-medium hover:text-purple-600">Register</Link>
-              </>
+              <div className="flex items-center gap-3 ml-2 pl-4 border-l border-hairline">
+                <Link to="/login" className="text-sm font-medium text-muted hover:text-primary transition-colors">
+                  Sign in
+                </Link>
+                <Link to="/register" className="text-sm font-medium bg-accent text-white px-4 py-1.5 rounded-md hover:bg-accent/90 transition-colors">
+                  Sign up
+                </Link>
+              </div>
             )}
-          </nav>
+          </div>
         </div>
       </header>
-      <main className="flex-1">
+
+      {/* Main content route transition wrapper could go here if we wanted full page anims, 
+          but prompt asks for brief subtle fade on page route transitions. 
+          We'll add a simple CSS animation keyframe for page loads. */}
+      <main className="flex-1 animate-in fade-in duration-300">
         <Outlet />
       </main>
     </div>
