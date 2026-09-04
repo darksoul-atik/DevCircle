@@ -60,4 +60,14 @@
   .fade-in {
     animation-name: fadeIn;
   }
+  
+  .bg-grid-pattern {
+    background-size: 40px 40px;
+    background-image: 
+      linear-gradient(to right, var(--color-hairline) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--color-hairline) 1px, transparent 1px);
+    /* Fade out the grid at the edges */
+    -webkit-mask-image: radial-gradient(ellipse at center, black 10%, transparent 70%);
+    mask-image: radial-gradient(ellipse at center, black 10%, transparent 70%);
+  }
 }
