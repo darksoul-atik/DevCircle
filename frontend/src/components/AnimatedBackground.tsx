@@ -43,8 +43,8 @@ export default function AnimatedBackground() {
             color: "#ea580c",
             distance: 150,
             enable: true,
-            opacity: 0.4,
-            width: 1.5,
+            opacity: 0.8,
+            width: 2,
           },
           move: {
             direction: "none",
@@ -63,7 +63,7 @@ export default function AnimatedBackground() {
             value: 80,
           },
           opacity: {
-            value: 0.6,
+            value: 1,
           },
           shape: {
             type: "circle",
