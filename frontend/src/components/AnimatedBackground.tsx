@@ -11,7 +11,7 @@ export default function AnimatedBackground() {
     <Particles
       id="tsparticles"
       init={particlesInit}
-      className="absolute inset-0 w-full h-full -z-10"
+      className="absolute inset-0 w-full h-full z-0"
       options={{
         background: {
           color: {

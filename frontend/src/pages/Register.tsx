@@ -78,7 +78,7 @@ export default function Register() {
       {/* Particles Background */}
       <AnimatedBackground />
 
-      <div className="max-w-5xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div className="max-w-5xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
         {/* Left Column: Hero Copy */}
         <div className="max-w-lg">
           <div className="mb-10 hero-text-line">
