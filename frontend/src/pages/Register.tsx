@@ -163,6 +163,7 @@ export default function Register() {
           
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex flex-col items-center justify-center mb-6">
+              <label className="block text-xs font-mono text-muted mb-3 uppercase tracking-wider">Upload Profile Picture</label>
               <input 
                 type="file" 
                 accept="image/*" 
