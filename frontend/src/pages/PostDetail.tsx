@@ -1,13 +1,100 @@
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'react-router-dom';
 import client from '../api/client';
 import ReactMarkdown from 'react-markdown';
 import { MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+
+interface Comment {
+  id: string;
+  body: string;
+  author: { id: string; name: string };
+  createdAt: string;
+  likeCount: number;
+  dislikeCount: number;
+  replies: Comment[];
+}
+
+function CommentNode({ comment, postId }: { comment: Comment, postId: string }) {
+  const [isReplying, setIsReplying] = useState(false);
+  const [replyBody, setReplyBody] = useState('');
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+
+  const replyMutation = useMutation({
+    mutationFn: (body: string) => client.post(`/posts/${postId}/comments`, { body, parentCommentId: comment.id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
+      setIsReplying(false);
+      setReplyBody('');
+    }
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!replyBody.trim()) return;
+    replyMutation.mutate(replyBody);
+  };
+
+  return (
+    <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 py-2 mt-4">
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-sm font-semibold">{comment.author.name}</span>
+        <span className="text-xs text-gray-500">{new Date(comment.createdAt).toLocaleDateString()}</span>
+      </div>
+      <p className="text-sm mb-2">{comment.body}</p>
+      
+      <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
+        <button className="flex items-center gap-1 hover:text-purple-600">
+          <ThumbsUp size={14} /> {comment.likeCount}
+        </button>
+        <button className="flex items-center gap-1 hover:text-purple-600">
+          <ThumbsDown size={14} /> {comment.dislikeCount}
+        </button>
+        {user && (
+          <button onClick={() => setIsReplying(!isReplying)} className="font-medium hover:text-purple-600">
+            Reply
+          </button>
+        )}
+      </div>
+
+      {isReplying && (
+        <form onSubmit={handleSubmit} className="mt-2 mb-4">
+          <textarea
+            className="w-full text-sm p-2 border border-gray-300 dark:border-gray-700 rounded-md bg-transparent"
+            rows={2}
+            placeholder="Write a reply..."
+            value={replyBody}
+            onChange={(e) => setReplyBody(e.target.value)}
+          />
+          <div className="flex gap-2 mt-2 justify-end">
+            <button type="button" onClick={() => setIsReplying(false)} className="text-xs text-gray-500">Cancel</button>
+            <button type="submit" disabled={replyMutation.isPending} className="text-xs bg-purple-600 text-white px-3 py-1 rounded-md">
+              {replyMutation.isPending ? 'Replying...' : 'Reply'}
+            </button>
+          </div>
+        </form>
+      )}
+
+      {comment.replies && comment.replies.length > 0 && (
+        <div className="ml-2">
+          {comment.replies.map(reply => (
+            <CommentNode key={reply.id} comment={reply} postId={postId} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function PostDetail() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [commentBody, setCommentBody] = useState('');
 
-  const { data: post, isLoading, isError, error } = useQuery({
+  const { data: post, isLoading: postLoading } = useQuery({
     queryKey: ['post', id],
     queryFn: async () => {
       const res = await client.get(`/posts/${id}`);
@@ -15,21 +102,31 @@ export default function PostDetail() {
     },
   });
 
-  if (isLoading) {
-    return (
-      <div className="max-w-3xl mx-auto py-8 px-4">
-        <div className="animate-pulse bg-gray-200 dark:bg-gray-800 h-64 rounded-lg"></div>
-      </div>
-    );
-  }
+  const { data: comments, isLoading: commentsLoading } = useQuery({
+    queryKey: ['comments', id],
+    queryFn: async () => {
+      const res = await client.get(`/posts/${id}/comments`);
+      return res.data.data;
+    },
+  });
 
-  if (isError || !post) {
-    return (
-      <div className="max-w-3xl mx-auto py-8 px-4 text-center text-red-600">
-        <p>Failed to load post: {(error as any)?.response?.data?.message || 'Unknown error'}</p>
-      </div>
-    );
-  }
+  const commentMutation = useMutation({
+    mutationFn: (body: string) => client.post(`/posts/${id}/comments`, { body }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', id] });
+      queryClient.invalidateQueries({ queryKey: ['post', id] });
+      setCommentBody('');
+    }
+  });
+
+  const handleCommentSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!commentBody.trim()) return;
+    commentMutation.mutate(commentBody);
+  };
+
+  if (postLoading) return <div className="max-w-3xl mx-auto py-8 px-4 animate-pulse bg-gray-200 dark:bg-gray-800 h-64 rounded-lg"></div>;
+  if (!post) return <div className="max-w-3xl mx-auto py-8 px-4 text-center text-red-600">Post not found</div>;
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
@@ -56,7 +153,46 @@ export default function PostDetail() {
         </div>
       </div>
       
-      {/* Comments section will go here in Phase 5 */}
+      <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700">
+        <h2 className="text-xl font-bold mb-6">Comments</h2>
+        
+        {user ? (
+          <form onSubmit={handleCommentSubmit} className="mb-8">
+            <textarea
+              className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md bg-transparent"
+              rows={3}
+              placeholder="Add to the discussion..."
+              value={commentBody}
+              onChange={(e) => setCommentBody(e.target.value)}
+            />
+            <div className="flex justify-end mt-2">
+              <button 
+                type="submit" 
+                disabled={commentMutation.isPending}
+                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 disabled:opacity-50"
+              >
+                {commentMutation.isPending ? 'Posting...' : 'Post Comment'}
+              </button>
+            </div>
+          </form>
+        ) : (
+          <div className="mb-8 p-4 bg-gray-50 dark:bg-gray-900 rounded-md text-sm text-center">
+            Log in to join the discussion.
+          </div>
+        )}
+
+        {commentsLoading ? (
+          <div className="animate-pulse bg-gray-200 dark:bg-gray-800 h-24 rounded-lg"></div>
+        ) : comments?.length === 0 ? (
+          <p className="text-gray-500 text-center py-4">No comments yet.</p>
+        ) : (
+          <div className="space-y-2">
+            {comments?.map((comment: Comment) => (
+              <CommentNode key={comment.id} comment={comment} postId={id as string} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
