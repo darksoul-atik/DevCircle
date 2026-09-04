@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { FiArrowRight, FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi';
 import { Logo } from '../components/Layout';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 export default function Login() {
   const [error, setError] = useState('');
@@ -40,17 +41,6 @@ export default function Login() {
       { opacity: 1, duration: 1.5, ease: 'power2.inOut' },
       "-=0.6"
     );
-
-    // Gentle breathing/floating effect for the individual paths
-    gsap.to('.motif-path', {
-      y: 20,
-      x: -30,
-      duration: 8,
-      repeat: -1,
-      yoyo: true,
-      ease: 'sine.inOut',
-      stagger: 1.5
-    });
   }, { scope: containerRef });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -77,15 +67,8 @@ export default function Login() {
 
   return (
     <div ref={containerRef} className="min-h-[calc(100vh-4rem)] flex flex-col justify-center relative overflow-hidden">
-      {/* Background Motif */}
-      <div className="bg-motif absolute top-0 right-0 bottom-0 left-1/2 -z-10 pointer-events-none hidden md:block">
-        <svg viewBox="0 0 800 600" className="w-full h-full opacity-10 stroke-primary/30" preserveAspectRatio="none">
-          <path className="motif-path" d="M0,500 Q100,450 200,480 T400,300 T600,200 T800,100" fill="none" strokeWidth="2" />
-          <path className="motif-path" d="M0,550 Q150,550 250,500 T500,400 T700,250 T800,180" fill="none" strokeWidth="1" />
-          <path className="motif-path" d="M0,580 Q200,580 300,530 T600,450 T800,280" fill="none" strokeWidth="1" strokeDasharray="4 4" />
-        </svg>
-      </div>
-
+      {/* Particles Background */}
+      <AnimatedBackground />
       <div className="max-w-5xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Left Column: Hero Copy */}
         <div className="max-w-lg">

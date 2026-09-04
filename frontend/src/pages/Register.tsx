@@ -6,6 +6,7 @@ import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { FiArrowRight, FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi';
 import { Logo } from '../components/Layout';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 export default function Register() {
   const [error, setError] = useState('');
@@ -42,23 +43,6 @@ export default function Register() {
       "-=0.6"
     );
 
-    // Dynamic drifting and fading effect for the individual paths
-    gsap.fromTo('.motif-path', 
-      { opacity: 0, x: 0, y: 0 },
-      {
-        opacity: 0.6,
-        y: 30,
-        x: -40,
-        duration: 7,
-        repeat: -1,
-        yoyo: true,
-        ease: 'sine.inOut',
-        stagger: {
-          each: 1.2,
-          from: "random"
-        }
-      }
-    );
   }, { scope: containerRef });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -85,16 +69,8 @@ export default function Register() {
 
   return (
     <div ref={containerRef} className="min-h-[calc(100vh-4rem)] flex flex-col justify-center relative overflow-hidden">
-      {/* Background Motif */}
-      <div className="bg-motif absolute top-0 right-0 bottom-0 left-1/2 -z-10 pointer-events-none hidden md:block">
-        <svg viewBox="0 0 800 600" className="w-full h-full stroke-primary/40" preserveAspectRatio="none">
-          <path className="motif-path" d="M0,500 Q100,450 200,480 T400,300 T600,200 T800,100" fill="none" strokeWidth="2" />
-          <path className="motif-path" d="M0,550 Q150,550 250,500 T500,400 T700,250 T800,180" fill="none" strokeWidth="1" />
-          <path className="motif-path" d="M-100,400 Q100,300 300,450 T700,200 T900,100" fill="none" strokeWidth="1" />
-          <path className="motif-path" d="M0,580 Q200,580 300,530 T600,450 T800,280" fill="none" strokeWidth="1" strokeDasharray="4 4" />
-          <path className="motif-path" d="M-50,600 Q150,450 400,550 T800,350 T1000,200" fill="none" strokeWidth="1" strokeDasharray="2 6" />
-        </svg>
-      </div>
+      {/* Particles Background */}
+      <AnimatedBackground />
 
       <div className="max-w-5xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Left Column: Hero Copy */}
