@@ -6,6 +6,12 @@ import ReactMarkdown from 'react-markdown';
 import { MessageSquare, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
+interface Reaction {
+  id: string;
+  type: 'like' | 'dislike';
+  userId: string;
+}
+
 interface Comment {
   id: string;
   body: string;
@@ -13,7 +19,20 @@ interface Comment {
   createdAt: string;
   likeCount: number;
   dislikeCount: number;
+  reactions: Reaction[];
   replies: Comment[];
+}
+
+interface Post {
+  id: string;
+  title: string;
+  body: string;
+  author: { id: string; name: string; email: string };
+  likeCount: number;
+  dislikeCount: number;
+  commentCount: number;
+  createdAt: string;
+  reactions: Reaction[];
 }
 
 function CommentNode({ comment, postId }: { comment: Comment, postId: string }) {
@@ -31,11 +50,68 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
     }
   });
 
+  const toggleReaction = useMutation({
+    mutationFn: (type: 'like' | 'dislike') => 
+      client.post('/reactions', { targetType: 'comment', targetId: comment.id, type }),
+    onMutate: async (type) => {
+      await queryClient.cancelQueries({ queryKey: ['comments', postId] });
+      const previousComments = queryClient.getQueryData(['comments', postId]);
+
+      // Optimistic update function for a nested tree
+      const updateTree = (nodes: Comment[]): Comment[] => {
+        return nodes.map(node => {
+          if (node.id === comment.id) {
+            let newLikeCount = node.likeCount;
+            let newDislikeCount = node.dislikeCount;
+            let newReactions = [...(node.reactions || [])];
+            
+            const existingIndex = newReactions.findIndex(r => r.userId === user?.id);
+            if (existingIndex > -1) {
+              const existing = newReactions[existingIndex];
+              if (existing.type === type) {
+                // Remove
+                newReactions.splice(existingIndex, 1);
+                if (type === 'like') newLikeCount--;
+                if (type === 'dislike') newDislikeCount--;
+              } else {
+                // Switch
+                newReactions[existingIndex] = { ...existing, type };
+                if (type === 'like') { newLikeCount++; newDislikeCount--; }
+                if (type === 'dislike') { newDislikeCount++; newLikeCount--; }
+              }
+            } else {
+              // Add
+              newReactions.push({ id: 'temp', type, userId: user!.id });
+              if (type === 'like') newLikeCount++;
+              if (type === 'dislike') newDislikeCount++;
+            }
+            return { ...node, likeCount: newLikeCount, dislikeCount: newDislikeCount, reactions: newReactions };
+          }
+          if (node.replies) {
+            return { ...node, replies: updateTree(node.replies) };
+          }
+          return node;
+        });
+      };
+
+      queryClient.setQueryData(['comments', postId], (old: any) => old ? updateTree(old) : old);
+      return { previousComments };
+    },
+    onError: (err, type, context: any) => {
+      queryClient.setQueryData(['comments', postId], context.previousComments);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['comments', postId] });
+    }
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!replyBody.trim()) return;
     replyMutation.mutate(replyBody);
   };
+
+  const userReaction = comment.reactions?.find(r => r.userId === user?.id)?.type;
 
   return (
     <div className="border-l-2 border-gray-200 dark:border-gray-700 pl-4 py-2 mt-4">
@@ -46,10 +122,16 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
       <p className="text-sm mb-2">{comment.body}</p>
       
       <div className="flex items-center gap-4 text-xs text-gray-500 mb-2">
-        <button className="flex items-center gap-1 hover:text-purple-600">
+        <button 
+          onClick={() => user && toggleReaction.mutate('like')}
+          className={`flex items-center gap-1 hover:text-purple-600 ${userReaction === 'like' ? 'text-purple-600' : ''}`}
+        >
           <ThumbsUp size={14} /> {comment.likeCount}
         </button>
-        <button className="flex items-center gap-1 hover:text-purple-600">
+        <button 
+          onClick={() => user && toggleReaction.mutate('dislike')}
+          className={`flex items-center gap-1 hover:text-purple-600 ${userReaction === 'dislike' ? 'text-purple-600' : ''}`}
+        >
           <ThumbsDown size={14} /> {comment.dislikeCount}
         </button>
         {user && (
@@ -94,7 +176,7 @@ export default function PostDetail() {
   const queryClient = useQueryClient();
   const [commentBody, setCommentBody] = useState('');
 
-  const { data: post, isLoading: postLoading } = useQuery({
+  const { data: post, isLoading: postLoading } = useQuery<Post>({
     queryKey: ['post', id],
     queryFn: async () => {
       const res = await client.get(`/posts/${id}`);
@@ -102,7 +184,7 @@ export default function PostDetail() {
     },
   });
 
-  const { data: comments, isLoading: commentsLoading } = useQuery({
+  const { data: comments, isLoading: commentsLoading } = useQuery<Comment[]>({
     queryKey: ['comments', id],
     queryFn: async () => {
       const res = await client.get(`/posts/${id}/comments`);
@@ -119,6 +201,56 @@ export default function PostDetail() {
     }
   });
 
+  const postReactionMutation = useMutation({
+    mutationFn: (type: 'like' | 'dislike') => 
+      client.post('/reactions', { targetType: 'post', targetId: id, type }),
+    onMutate: async (type) => {
+      await queryClient.cancelQueries({ queryKey: ['post', id] });
+      const previousPost = queryClient.getQueryData<Post>(['post', id]);
+
+      if (previousPost && user) {
+        let newLikeCount = previousPost.likeCount;
+        let newDislikeCount = previousPost.dislikeCount;
+        let newReactions = [...(previousPost.reactions || [])];
+        
+        const existingIndex = newReactions.findIndex(r => r.userId === user.id);
+        if (existingIndex > -1) {
+          const existing = newReactions[existingIndex];
+          if (existing.type === type) {
+            newReactions.splice(existingIndex, 1);
+            if (type === 'like') newLikeCount--;
+            if (type === 'dislike') newDislikeCount--;
+          } else {
+            newReactions[existingIndex] = { ...existing, type };
+            if (type === 'like') { newLikeCount++; newDislikeCount--; }
+            if (type === 'dislike') { newDislikeCount++; newLikeCount--; }
+          }
+        } else {
+          newReactions.push({ id: 'temp', type, userId: user.id });
+          if (type === 'like') newLikeCount++;
+          if (type === 'dislike') newDislikeCount++;
+        }
+
+        queryClient.setQueryData<Post>(['post', id], {
+          ...previousPost,
+          likeCount: newLikeCount,
+          dislikeCount: newDislikeCount,
+          reactions: newReactions
+        });
+      }
+
+      return { previousPost };
+    },
+    onError: (err, type, context: any) => {
+      if (context?.previousPost) {
+        queryClient.setQueryData(['post', id], context.previousPost);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['post', id] });
+    }
+  });
+
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentBody.trim()) return;
@@ -127,6 +259,8 @@ export default function PostDetail() {
 
   if (postLoading) return <div className="max-w-3xl mx-auto py-8 px-4 animate-pulse bg-gray-200 dark:bg-gray-800 h-64 rounded-lg"></div>;
   if (!post) return <div className="max-w-3xl mx-auto py-8 px-4 text-center text-red-600">Post not found</div>;
+
+  const userPostReaction = post.reactions?.find(r => r.userId === user?.id)?.type;
 
   return (
     <div className="max-w-3xl mx-auto py-8 px-4">
@@ -141,10 +275,16 @@ export default function PostDetail() {
         </div>
 
         <div className="flex gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
-          <button className="flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors">
+          <button 
+            onClick={() => user && postReactionMutation.mutate('like')}
+            className={`flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors ${userPostReaction === 'like' ? 'text-purple-600' : ''}`}
+          >
             <ThumbsUp size={18} /> <span>{post.likeCount}</span>
           </button>
-          <button className="flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors">
+          <button 
+            onClick={() => user && postReactionMutation.mutate('dislike')}
+            className={`flex items-center gap-2 text-gray-500 hover:text-purple-600 transition-colors ${userPostReaction === 'dislike' ? 'text-purple-600' : ''}`}
+          >
             <ThumbsDown size={18} /> <span>{post.dislikeCount}</span>
           </button>
           <div className="flex items-center gap-2 text-gray-500 ml-auto">
