@@ -25,7 +25,7 @@ export function Logo({ className = "", iconSize = 24, textSizeClass = "text-xl" 
   );
 }
 
-function DarkModeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }) {
+export function DarkModeToggle({ isDark, toggle }: { isDark: boolean, toggle: () => void }) {
   const iconRef = useRef<HTMLDivElement>(null);
 
   const handleToggle = () => {

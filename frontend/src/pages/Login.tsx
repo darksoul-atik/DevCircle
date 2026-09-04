@@ -5,10 +5,12 @@ import { useNavigate, Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { FiArrowRight, FiEye, FiEyeOff, FiAlertCircle } from 'react-icons/fi';
-import { Logo } from '../components/Layout';
+import { Logo, DarkModeToggle } from '../components/Layout';
 import AnimatedBackground from '../components/AnimatedBackground';
+import { useDarkMode } from '../hooks/useDarkMode';
 
 export default function Login() {
+  const { isDark, toggleDarkMode } = useDarkMode();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -66,7 +68,11 @@ export default function Login() {
   };
 
   return (
-    <div ref={containerRef} className="min-h-[calc(100vh-4rem)] flex flex-col justify-center relative overflow-hidden">
+    <div ref={containerRef} className="min-h-[calc(100vh-4rem)] flex flex-col justify-center relative overflow-hidden bg-base transition-colors duration-200">
+      <div className="absolute top-6 right-6 z-50">
+        <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
+      </div>
+
       {/* Particles Background */}
       <AnimatedBackground />
       <div className="max-w-5xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
