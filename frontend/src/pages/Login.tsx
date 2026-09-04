@@ -49,12 +49,6 @@ export default function Login() {
     e.preventDefault();
     setError('');
 
-    // Basic password validation
-    if (password.length < 8 || !/\d/.test(password)) {
-      setError('Password must be at least 8 characters long and include a number.');
-      return;
-    }
-
     setLoading(true);
     try {
       const res = await client.post('/auth/login', { email, password });
