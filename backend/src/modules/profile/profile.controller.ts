@@ -28,7 +28,7 @@ export const getProfile = async (req: AuthRequest, res: Response, next: NextFunc
       where: { id: userId },
       include: {
         skills: true,
-        experiences: { orderBy: { startDate: 'desc' } }
+        experiences: { orderBy: { from: 'desc' } }
       },
     });
 
@@ -100,9 +100,11 @@ export const addExperience = async (req: AuthRequest, res: Response, next: NextF
 
     const exp = await prisma.experience.create({
       data: {
-        ...validated,
-        startDate: new Date(validated.startDate),
-        endDate: validated.endDate ? new Date(validated.endDate) : null,
+        title: validated.title,
+        company: validated.company,
+        description: validated.description,
+        from: new Date(validated.startDate),
+        to: validated.endDate ? new Date(validated.endDate) : null,
         userId,
       },
     });
