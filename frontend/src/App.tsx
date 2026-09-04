@@ -6,6 +6,7 @@ import Register from './pages/Register';
 import Feed from './pages/Feed';
 import CreatePost from './pages/CreatePost';
 import PostDetail from './pages/PostDetail';
+import Profile from './pages/Profile';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -42,6 +43,14 @@ function App() {
           element={
             <ProtectedRoute>
               <PostDetail />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/profile/me" 
+          element={
+            <ProtectedRoute>
+              <Profile />
             </ProtectedRoute>
           } 
         />

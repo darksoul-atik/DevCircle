@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import authRoutes from './modules/auth/auth.routes';
 import postsRoutes from './modules/posts/posts.routes';
 import reactionsRoutes from './modules/reactions/reactions.routes';
+import profileRoutes from './modules/profile/profile.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -22,6 +23,7 @@ app.get('/health', (req, res) => {
 app.use('/auth', authRoutes);
 app.use('/posts', postsRoutes);
 app.use('/reactions', reactionsRoutes);
+app.use('/profile', profileRoutes);
 
 app.use(errorHandler);
 
