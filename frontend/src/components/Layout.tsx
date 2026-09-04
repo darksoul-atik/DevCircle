@@ -6,15 +6,21 @@ import { FiSun, FiMoon, FiSearch, FiUser, FiLogOut } from 'react-icons/fi';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
-function Logo() {
+interface LogoProps {
+  className?: string;
+  iconSize?: number;
+  textSizeClass?: string;
+}
+
+export function Logo({ className = "", iconSize = 24, textSizeClass = "text-xl" }: LogoProps = {}) {
   return (
-    <Link to="/" className="flex items-center gap-2 group">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent transition-transform group-hover:scale-105">
+    <Link to="/" className={`flex items-center gap-2 group ${className}`}>
+      <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent transition-transform group-hover:scale-105">
         <polyline points="7 8 3 12 7 16" />
         <polyline points="17 8 21 12 17 16" />
         <line x1="14" y1="4" x2="10" y2="20" />
       </svg>
-      <span className="font-display font-bold text-xl tracking-tight text-primary">DevCircle</span>
+      <span className={`font-display font-bold tracking-tight text-primary ${textSizeClass}`}>DevCircle</span>
     </Link>
   );
 }

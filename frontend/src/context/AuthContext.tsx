@@ -31,11 +31,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       try {
         const res = await client.post('/auth/refresh');
         setAccessToken(res.data.data.accessToken);
-        // We need a way to get the user profile, for now we will just decode or 
-        // ideally add a /users/me endpoint later. For now, since silent refresh 
-        // doesn't return user info directly, we'll fetch profile later or we should 
-        // return user info in the refresh response.
-        // Let's assume we can fetch /users/me or we can just set authenticated true.
+        
+        // Fetch user profile to restore user state
+        const profileRes = await client.get('/profile/me');
+        setUser({
+          id: profileRes.data.data.id,
+          name: profileRes.data.data.name,
+          email: profileRes.data.data.email
+        });
       } catch (err) {
         setAccessToken(null);
         setUser(null);
