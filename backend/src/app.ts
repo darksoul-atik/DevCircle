@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './modules/auth/auth.routes';
+import postsRoutes from './modules/posts/posts.routes';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -18,6 +19,7 @@ app.get('/health', (req, res) => {
 });
 
 app.use('/auth', authRoutes);
+app.use('/posts', postsRoutes);
 
 app.use(errorHandler);
 
