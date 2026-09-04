@@ -6,6 +6,8 @@ import postsRoutes from './modules/posts/posts.routes';
 import reactionsRoutes from './modules/reactions/reactions.routes';
 import profileRoutes from './modules/profile/profile.routes';
 import { errorHandler } from './middleware/errorHandler';
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './utils/swagger';
 
 const app = express();
 
@@ -19,6 +21,8 @@ app.use(cookieParser());
 app.get('/health', (req, res) => {
   res.json({ success: true, data: { status: 'ok' }, message: 'Backend is healthy' });
 });
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use('/auth', authRoutes);
 app.use('/posts', postsRoutes);
