@@ -10,6 +10,7 @@ const registerSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(6),
+  avatar: z.string().url().optional(),
 });
 
 const loginSchema = z.object({
@@ -40,7 +41,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     const passwordHash = await bcrypt.hash(validated.password, 10);
     const user = await prisma.user.create({
-      data: { name: validated.name, email: validated.email, passwordHash },
+      data: { name: validated.name, email: validated.email, passwordHash, avatar: validated.avatar },
     });
 
     const accessToken = generateAccessToken(user.id);
@@ -58,7 +59,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     return sendSuccess(res, { 
       accessToken,
-      user: { id: user.id, name: user.name, email: user.email }
+      user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar }
     });
   } catch (err: any) {
     if (err instanceof z.ZodError) {
@@ -97,7 +98,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
     return sendSuccess(res, { 
       accessToken,
-      user: { id: user.id, name: user.name, email: user.email }
+      user: { id: user.id, name: user.name, email: user.email, avatar: user.avatar }
     });
   } catch (err: any) {
     if (err instanceof z.ZodError) {

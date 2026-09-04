@@ -20,6 +20,12 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [avatar, setAvatar] = useState('');
+
+  // Generate random stable seeds for the session
+  const [avatarOptions] = useState(() => 
+    Array.from({ length: 5 }, () => Math.random().toString(36).substring(7))
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -59,7 +65,9 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const res = await client.post('/auth/register', { name, email, password });
+      const payload: any = { name, email, password };
+      if (avatar) payload.avatar = avatar;
+      const res = await client.post('/auth/register', payload);
       login(res.data.data.accessToken, res.data.data.user);
       navigate('/');
     } catch (err: any) {
@@ -113,6 +121,29 @@ export default function Register() {
           )}
           
           <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label className="block text-xs font-mono text-muted mb-3 uppercase tracking-wider">Select Avatar (Optional)</label>
+              <div className="flex items-center gap-3">
+                {avatarOptions.map((seed) => {
+                  const url = `https://api.dicebear.com/9.x/notionists/svg?seed=${seed}&backgroundColor=transparent`;
+                  return (
+                    <button
+                      key={seed}
+                      type="button"
+                      onClick={() => setAvatar(url)}
+                      className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+                        avatar === url 
+                          ? 'border-accent scale-110 shadow-md ring-2 ring-accent/20' 
+                          : 'border-hairline hover:border-muted'
+                      }`}
+                    >
+                      <img src={url} alt="Avatar option" className="w-full h-full object-cover bg-subtle" />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            
             <div>
               <label className="block text-xs font-mono text-muted mb-1.5 uppercase tracking-wider">Display Name</label>
               <input 

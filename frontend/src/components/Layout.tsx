@@ -111,8 +111,12 @@ export default function Layout() {
 
             {user ? (
               <div className="flex items-center gap-3 ml-2 pl-4 border-l border-hairline">
-                <Link to="/profile/me" className="p-2 text-muted hover:text-primary transition-colors" title="Profile">
-                  <FiUser size={18} />
+                <Link to="/profile/me" className="flex items-center justify-center p-1 rounded-full border border-hairline hover:border-accent transition-colors" title="Profile">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt="Profile" className="w-6 h-6 rounded-full bg-subtle" />
+                  ) : (
+                    <FiUser size={18} className="m-1 text-muted" />
+                  )}
                 </Link>
                 <button 
                   onClick={() => logout()} 

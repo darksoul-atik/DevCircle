@@ -5,6 +5,7 @@ interface User {
   id: string;
   name: string;
   email: string;
+  avatar?: string;
 }
 
 interface AuthContextType {
@@ -37,7 +38,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser({
           id: profileRes.data.data.id,
           name: profileRes.data.data.name,
-          email: profileRes.data.data.email
+          email: profileRes.data.data.email,
+          avatar: profileRes.data.data.avatar,
         });
       } catch (err) {
         setAccessToken(null);
