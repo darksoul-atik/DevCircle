@@ -40,6 +40,23 @@ export default function Login() {
       { opacity: 1, duration: 1.5, ease: 'power2.inOut' },
       "-=0.6"
     );
+
+    // Draw the lines in
+    tl.fromTo('.motif-path', 
+      { strokeDasharray: 1200, strokeDashoffset: 1200 },
+      { strokeDashoffset: 0, duration: 3, ease: 'power2.out', stagger: 0.2 },
+      "-=1.0"
+    );
+
+    // Gentle breathing/floating effect after drawing
+    gsap.to('.bg-motif svg', {
+      y: 15,
+      x: -10,
+      duration: 6,
+      repeat: -1,
+      yoyo: true,
+      ease: 'sine.inOut'
+    });
   }, { scope: containerRef });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,9 +86,9 @@ export default function Login() {
       {/* Background Motif */}
       <div className="bg-motif absolute top-0 right-0 bottom-0 left-1/2 -z-10 pointer-events-none hidden md:block">
         <svg viewBox="0 0 800 600" className="w-full h-full opacity-10 stroke-primary/30" preserveAspectRatio="none">
-          <path d="M0,500 Q100,450 200,480 T400,300 T600,200 T800,100" fill="none" strokeWidth="2" />
-          <path d="M0,550 Q150,550 250,500 T500,400 T700,250 T800,180" fill="none" strokeWidth="1" />
-          <path d="M0,580 Q200,580 300,530 T600,450 T800,280" fill="none" strokeWidth="1" strokeDasharray="4 4" />
+          <path className="motif-path" d="M0,500 Q100,450 200,480 T400,300 T600,200 T800,100" fill="none" strokeWidth="2" />
+          <path className="motif-path" d="M0,550 Q150,550 250,500 T500,400 T700,250 T800,180" fill="none" strokeWidth="1" />
+          <path className="motif-path" d="M0,580 Q200,580 300,530 T600,450 T800,280" fill="none" strokeWidth="1" strokeDasharray="4 4" />
         </svg>
       </div>
 
