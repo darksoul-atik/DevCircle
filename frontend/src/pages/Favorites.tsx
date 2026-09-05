@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { formatDateTime } from '../utils/date';
 import Avatar from '../components/Avatar';
@@ -13,6 +13,14 @@ export default function Favorites() {
       return res.data.data;
     }
   });
+
+  const navigate = useNavigate();
+
+  const handleAuthorClick = (e: React.MouseEvent, authorId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    navigate(`/users/${authorId}`);
+  };
 
   if (isLoading) {
     return (
@@ -44,10 +52,14 @@ export default function Favorites() {
               <h2 className="text-lg font-display font-semibold text-primary mb-2 group-hover:text-accent transition-colors">
                 {post.title}
               </h2>
-              <div className="flex items-center gap-3 mb-4">
+              <div 
+                className="flex items-center gap-3 mb-4 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={(e) => handleAuthorClick(e, post.author.id)}
+                title="View Profile"
+              >
                 <Avatar name={post.author.name} url={post.author.avatar} size="md" className="w-10 h-10 text-lg shrink-0" />
                 <div className="flex flex-col">
-                  <span className="text-primary font-semibold text-sm leading-tight">
+                  <span className="text-primary font-semibold text-sm leading-tight hover:text-accent transition-colors">
                     {post.author.name}
                   </span>
                   <div className="flex items-center gap-1.5 text-xs font-medium text-muted mt-0.5">

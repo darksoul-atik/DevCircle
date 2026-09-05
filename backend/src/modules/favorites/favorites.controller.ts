@@ -49,7 +49,7 @@ export const getFavorites = async (req: AuthRequest, res: Response, next: NextFu
       include: {
         post: {
           include: {
-            author: { select: { name: true, email: true, avatar: true, title: true } },
+            author: { select: { id: true, name: true, email: true, avatar: true, title: true } },
             community: { select: { name: true, slug: true } },
             _count: { select: { comments: true } },
             reactions: true,

@@ -1,4 +1,4 @@
-import { Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import prisma from '../../utils/prisma';
 import { sendSuccess, sendError } from '../../utils/response';
 import { z } from 'zod';
@@ -156,6 +156,27 @@ export const updateExperience = async (req: AuthRequest, res: Response, next: Ne
     return sendSuccess(res, updated, 'Experience updated');
   } catch (err: any) {
     if (err instanceof z.ZodError) return sendError(res, 400, 'Validation Error', (err as any).errors);
+    next(err);
+  }
+};
+
+export const getPublicProfile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const user = await prisma.user.findUnique({
+      where: { id },
+      include: {
+        skills: true,
+        experiences: { orderBy: { from: 'desc' } }
+      },
+    });
+
+    if (!user) return sendError(res, 404, 'User not found');
+    
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { passwordHash, email, refreshTokens, ...safeUser } = user as any;
+    return sendSuccess(res, safeUser);
+  } catch (err) {
     next(err);
   }
 };

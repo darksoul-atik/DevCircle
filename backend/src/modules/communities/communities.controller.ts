@@ -85,7 +85,7 @@ export const getCommunityPosts = async (req: Request, res: Response, next: NextF
       prisma.post.findMany({
         where: { communityId: community.id },
         include: {
-          author: { select: { name: true, email: true, avatar: true, title: true } },
+          author: { select: { id: true, name: true, email: true, avatar: true, title: true } },
           _count: { select: { comments: true } },
           reactions: true,
         },

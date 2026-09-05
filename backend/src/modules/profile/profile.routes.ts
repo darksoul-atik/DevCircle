@@ -1,10 +1,13 @@
 import { Router } from 'express';
-import { getProfile, updateProfile, addSkill, deleteSkill, addExperience, deleteExperience, updateExperience } from './profile.controller';
+import { getProfile, updateProfile, addSkill, deleteSkill, addExperience, deleteExperience, updateExperience, getPublicProfile } from './profile.controller';
 import { requireAuth } from '../../middleware/authHandler';
 
 const router = Router();
 
-router.use(requireAuth); // All profile routes are protected
+// Public route for viewing a user's profile
+router.get('/user/:id', getPublicProfile);
+
+router.use(requireAuth); // Protect all below routes
 
 router.get('/me', getProfile);
 router.put('/me', updateProfile);

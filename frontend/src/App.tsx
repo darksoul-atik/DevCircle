@@ -10,6 +10,7 @@ import Profile from './pages/Profile';
 import CommunityDetail from './pages/CommunityDetail';
 import CreateCommunity from './pages/CreateCommunity';
 import Favorites from './pages/Favorites';
+import UserProfile from './pages/UserProfile';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -54,6 +55,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/users/:id" 
+          element={
+            <ProtectedRoute>
+              <UserProfile />
             </ProtectedRoute>
           } 
         />

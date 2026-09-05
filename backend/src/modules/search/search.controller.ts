@@ -22,7 +22,7 @@ export const multiFieldSearch = async (req: Request, res: Response, next: NextFu
         ]
       },
       include: {
-        author: { select: { name: true, email: true, avatar: true, title: true } },
+        author: { select: { id: true, name: true, email: true, avatar: true, title: true } },
         _count: { select: { comments: true } },
         reactions: true,
       },

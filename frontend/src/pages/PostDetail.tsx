@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import client from '../api/client';
 import ReactMarkdown from 'react-markdown';
 import { FiMessageSquare, FiArrowUp, FiArrowDown, FiCornerDownRight, FiEdit2, FiTrash2, FiBookmark } from 'react-icons/fi';
@@ -189,10 +189,10 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
       {/* Structural connector */}
       <div className="absolute -left-[1px] top-4 w-[1px] h-4 bg-hairline"></div>
       
-      <div className="flex items-center gap-2.5 mb-2">
+      <Link to={`/users/${comment.author.id}`} className="flex items-center gap-2.5 mb-2 hover:opacity-80 transition-opacity">
         <Avatar name={comment.author.name} url={comment.author.avatar} size="md" className="w-9 h-9 text-base shrink-0" />
         <div className="flex flex-col">
-          <span className="font-semibold text-primary text-sm leading-tight">
+          <span className="font-semibold text-primary text-sm leading-tight hover:text-accent transition-colors">
             {comment.author.name}
           </span>
           <div className="flex items-center gap-1.5 text-xs font-medium text-muted mt-0.5">
@@ -201,6 +201,7 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
             <time>{formatDateTime(comment.createdAt)}</time>
           </div>
         </div>
+      </Link>
         {user?.id === comment.author.id && (
           <div className="flex gap-2 ml-auto text-muted">
             <button onClick={() => setIsEditing(!isEditing)} className="hover:text-accent transition-colors" title="Edit"><FiEdit2 size={12} /></button>
@@ -472,18 +473,20 @@ export default function PostDetail() {
               </h1>
             </div>
             
-            <div className="flex items-center gap-3 border-b border-hairline pb-6 mb-8">
-              <Avatar name={post.author.name} url={post.author.avatar} size="lg" className="w-12 h-12 text-xl shrink-0" />
-              <div className="flex flex-col">
-                <span className="text-primary font-semibold text-base leading-tight">
-                  {post.author.name}
-                </span>
-                <div className="flex items-center gap-1.5 text-sm font-medium text-muted mt-0.5">
-                  <span>{post.author.title || `@${post.author.name.toLowerCase().replace(/\s/g, '')}`}</span>
-                  <span>·</span>
-                  <time>{formatDateTime(post.createdAt)}</time>
+            <div className="flex items-center justify-between border-b border-hairline pb-6 mb-8">
+              <Link to={`/users/${post.author.id}`} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                <Avatar name={post.author.name} url={post.author.avatar} size="lg" className="w-12 h-12 text-xl shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-primary font-semibold text-base leading-tight hover:text-accent transition-colors">
+                    {post.author.name}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-muted mt-0.5">
+                    <span>{post.author.title || `@${post.author.name.toLowerCase().replace(/\s/g, '')}`}</span>
+                    <span>·</span>
+                    <time>{formatDateTime(post.createdAt)}</time>
+                  </div>
                 </div>
-              </div>
+              </Link>
               
               {user?.id === post.author.id && (
                 <div className="flex gap-3 ml-auto text-muted">
