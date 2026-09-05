@@ -69,32 +69,32 @@ export default function Login() {
 
       {/* Particles Background */}
       <AnimatedBackground />
-      <div className="max-w-5xl mx-auto px-4 w-full grid grid-cols-1 md:grid-cols-2 gap-12 items-center relative z-10">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center relative z-10 py-12 md:py-0">
         {/* Left Column: Hero Copy */}
-        <div className="max-w-lg">
-          <div className="mb-10 hero-text-line">
-            <Logo iconSize={48} textSizeClass="text-5xl" />
+        <div className="max-w-lg mx-auto md:mx-0 text-center md:text-left">
+          <div className="mb-8 md:mb-10 hero-text-line flex justify-center md:justify-start">
+            <Logo iconSize={40} textSizeClass="text-4xl md:text-5xl" />
           </div>
           <div className="hero-text-line overflow-hidden">
-            <h1 className="text-5xl md:text-6xl font-display font-bold text-primary tracking-tight leading-tight mb-2">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-primary tracking-tight leading-tight mb-2">
               Code. Connect.
             </h1>
           </div>
           <div className="hero-text-line overflow-hidden">
-            <h1 className="text-5xl md:text-6xl font-display font-bold text-primary tracking-tight leading-tight mb-6">
-              Conquer.
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-primary tracking-tight leading-tight mb-4 md:mb-6">
+              Connect.
             </h1>
           </div>
           <div className="hero-text-line">
-            <p className="text-lg text-muted leading-relaxed font-sans mb-8">
-              The developer community you've been waiting for. Skip the noise, join the discussion, and share the signal.
+            <p className="text-base sm:text-lg text-muted leading-relaxed font-sans mb-8">
+              Welcome back to the developer community. Skip the noise, join the discussion, and share the signal.
             </p>
           </div>
         </div>
 
         {/* Right Column: Auth Form */}
-        <div className="hero-form max-w-sm w-full bg-subtle/50 backdrop-blur-sm border border-hairline p-8 rounded-xl shadow-sm">
-          <h2 className="text-xl font-display font-medium text-primary mb-6">Sign in to your account</h2>
+        <div className="hero-form mx-auto md:ml-auto max-w-sm w-full bg-subtle/50 backdrop-blur-sm border border-hairline p-6 sm:p-8 rounded-xl shadow-sm">
+          <h2 className="text-xl font-display font-medium text-primary mb-6 text-center md:text-left">Welcome back</h2>
 
           {error && (
             <div className="mb-6 p-3 bg-red-500/10 text-red-600 dark:text-red-400 rounded-md text-sm font-medium border border-red-500/20 flex items-start gap-2">
