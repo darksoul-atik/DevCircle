@@ -51,7 +51,7 @@ export const createCommunity = async (req: AuthRequest, res: Response, next: Nex
       return sendError(res, 400, 'A community with a similar name already exists');
     }
 
-    const iconUrl = req.file ? `/uploads/${req.file.filename}` : (validated.icon || null);
+    const iconUrl = (req as any).file ? `/uploads/${(req as any).file.filename}` : (validated.icon || null);
 
     const community = await prisma.community.create({
       data: {
@@ -168,7 +168,7 @@ export const updateCommunity = async (req: AuthRequest, res: Response, next: Nex
       }
     }
 
-    const iconUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const iconUrl = (req as any).file ? `/uploads/${(req as any).file.filename}` : undefined;
 
     const updated = await prisma.community.update({
       where: { id: community.id },

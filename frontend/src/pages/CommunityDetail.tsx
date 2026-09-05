@@ -67,7 +67,7 @@ export default function CommunityDetail() {
                 onClick={(e) => handleAuthorClick(e, community.createdBy.id)}
               >
                 <span className="text-xs text-muted">Created by</span>
-                <Avatar src={community.createdBy.avatar} name={community.createdBy.name} size="xs" />
+                <Avatar url={community.createdBy.avatar} name={community.createdBy.name} size="sm" />
                 <span className="text-sm font-medium text-primary group-hover:text-accent transition-colors">
                   {community.createdBy.name}
                 </span>
@@ -76,7 +76,7 @@ export default function CommunityDetail() {
           </div>
         </div>
         
-        {user?.userId === community.createdBy?.id && (
+        {user?.id === community.createdBy?.id && (
           <button 
             onClick={() => setIsEditModalOpen(true)}
             className="px-4 py-2 text-sm font-medium bg-background border border-hairline rounded hover:bg-subtle transition-colors shadow-sm whitespace-nowrap"
