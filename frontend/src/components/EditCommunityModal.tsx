@@ -75,8 +75,8 @@ export default function EditCommunityModal({ community, onClose }: EditCommunity
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-white dark:bg-gray-900 w-full max-w-2xl rounded-xl shadow-xl border border-hairline overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center p-6 border-b border-hairline">
-          <h2 className="text-xl font-display font-bold text-primary">Edit Community</h2>
-          <button onClick={onClose} className="p-2 text-muted hover:text-primary hover:bg-subtle rounded-full transition-colors">
+          <h2 className="text-xl font-display font-bold text-black dark:text-white">Edit Community</h2>
+          <button onClick={onClose} className="p-2 text-muted hover:text-black dark:hover:text-white hover:bg-subtle rounded-full transition-colors">
             <FiX size={20} />
           </button>
         </div>
@@ -120,23 +120,23 @@ export default function EditCommunityModal({ community, onClose }: EditCommunity
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-primary mb-1">Name</label>
+              <label className="block text-sm font-medium text-black dark:text-white mb-1">Name</label>
               <input
                 type="text"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 bg-background border border-hairline rounded-lg text-primary focus:outline-none focus:border-accent transition-colors"
+                className="w-full px-4 py-2.5 bg-background border border-hairline rounded-lg text-black dark:text-white focus:outline-none focus:border-accent transition-colors"
                 placeholder="Community Name"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-primary mb-1">Description</label>
+              <label className="block text-sm font-medium text-black dark:text-white mb-1">Description</label>
               <textarea
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                className="w-full px-4 py-2.5 bg-background border border-hairline rounded-lg text-primary focus:outline-none focus:border-accent transition-colors min-h-[100px] resize-y"
+                className="w-full px-4 py-2.5 bg-background border border-hairline rounded-lg text-black dark:text-white focus:outline-none focus:border-accent transition-colors min-h-[100px] resize-y"
                 placeholder="What is this community about?"
               />
             </div>
@@ -146,7 +146,7 @@ export default function EditCommunityModal({ community, onClose }: EditCommunity
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-muted hover:text-primary transition-colors"
+              className="px-4 py-2 text-sm font-medium text-muted hover:text-black dark:hover:text-white transition-colors"
             >
               Cancel
             </button>
