@@ -73,7 +73,7 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-200">
-      <header className="sticky top-0 z-50 transition-all duration-200 border-b bg-purple-50/80 dark:bg-purple-950/30 backdrop-blur-lg border-hairline shadow-sm">
+      <header className="sticky top-0 z-50 transition-all duration-200 border-b bg-[#F3F2FD]/90 dark:bg-[#151426]/90 backdrop-blur-lg border-hairline shadow-sm">
         <div className="w-full px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Logo />
