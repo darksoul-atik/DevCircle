@@ -6,7 +6,7 @@ export const errorHandler = (err: any, req: Request, res: Response, next: NextFu
 
   const statusCode = err.statusCode || 500;
   const message = err.message || 'Internal Server Error';
-  const errors = err.errors || [];
+  const errors = (err as any).errors || [];
 
   sendError(res, statusCode, message, errors);
 };

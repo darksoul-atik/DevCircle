@@ -63,7 +63,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     });
   } catch (err: any) {
     if (err instanceof z.ZodError) {
-      return sendError(res, 400, 'Validation Error', err.errors);
+      return sendError(res, 400, 'Validation Error', (err as any).errors);
     }
     next(err);
   }
@@ -102,7 +102,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     });
   } catch (err: any) {
     if (err instanceof z.ZodError) {
-      return sendError(res, 400, 'Validation Error', err.errors);
+      return sendError(res, 400, 'Validation Error', (err as any).errors);
     }
     next(err);
   }

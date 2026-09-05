@@ -5,9 +5,13 @@ import authRoutes from './modules/auth/auth.routes';
 import postsRoutes from './modules/posts/posts.routes';
 import reactionsRoutes from './modules/reactions/reactions.routes';
 import profileRoutes from './modules/profile/profile.routes';
+import communitiesRoutes from './routes/communities';
+import searchRoutes from './routes/search';
+import favoritesRoutes from './routes/favorites';
 import { errorHandler } from './middleware/errorHandler';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from './utils/swagger';
+import path from 'path';
 
 const app = express();
 
@@ -28,6 +32,10 @@ app.use('/auth', authRoutes);
 app.use('/posts', postsRoutes);
 app.use('/reactions', reactionsRoutes);
 app.use('/profile', profileRoutes);
+app.use('/communities', communitiesRoutes);
+app.use('/search', searchRoutes);
+app.use('/favorites', favoritesRoutes);
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 app.use(errorHandler);
 

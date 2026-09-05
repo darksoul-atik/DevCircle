@@ -63,7 +63,7 @@ export const toggleReaction = async (req: AuthRequest, res: Response, next: Next
 
   } catch (err: any) {
     if (err instanceof z.ZodError) {
-      return sendError(res, 400, 'Validation Error', err.errors);
+      return sendError(res, 400, 'Validation Error', (err as any).errors);
     }
     next(err);
   }

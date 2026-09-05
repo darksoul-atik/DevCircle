@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { createPost, getPosts, getPostById } from './posts.controller';
+import { upload } from '../../utils/multer';
 import { requireAuth } from '../../middleware/authHandler';
 import commentsRoutes from '../comments/comments.routes';
 
@@ -26,7 +27,7 @@ const router = Router();
  *       201:
  *         description: Success
  */
-router.post('/', requireAuth, createPost);
+router.post('/', requireAuth, upload.single('image'), createPost);
 
 /**
  * @swagger

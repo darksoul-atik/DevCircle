@@ -57,7 +57,7 @@ export const updateProfile = async (req: AuthRequest, res: Response, next: NextF
     const { passwordHash, ...safeUser } = user;
     return sendSuccess(res, safeUser, 'Profile updated');
   } catch (err: any) {
-    if (err instanceof z.ZodError) return sendError(res, 400, 'Validation Error', err.errors);
+    if (err instanceof z.ZodError) return sendError(res, 400, 'Validation Error', (err as any).errors);
     next(err);
   }
 };
@@ -73,14 +73,14 @@ export const addSkill = async (req: AuthRequest, res: Response, next: NextFuncti
 
     return sendSuccess(res, skill, 'Skill added', 201);
   } catch (err: any) {
-    if (err instanceof z.ZodError) return sendError(res, 400, 'Validation Error', err.errors);
+    if (err instanceof z.ZodError) return sendError(res, 400, 'Validation Error', (err as any).errors);
     next(err);
   }
 };
 
 export const deleteSkill = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const  = req.params. as string;
     const userId = req.user!.userId;
 
     const skill = await prisma.skill.findUnique({ where: { id } });
@@ -111,14 +111,14 @@ export const addExperience = async (req: AuthRequest, res: Response, next: NextF
 
     return sendSuccess(res, exp, 'Experience added', 201);
   } catch (err: any) {
-    if (err instanceof z.ZodError) return sendError(res, 400, 'Validation Error', err.errors);
+    if (err instanceof z.ZodError) return sendError(res, 400, 'Validation Error', (err as any).errors);
     next(err);
   }
 };
 
 export const deleteExperience = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const  = req.params. as string;
     const userId = req.user!.userId;
 
     const exp = await prisma.experience.findUnique({ where: { id } });

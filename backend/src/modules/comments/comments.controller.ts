@@ -12,7 +12,7 @@ const createCommentSchema = z.object({
 export const createComment = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const validated = createCommentSchema.parse(req.body);
-    const { id: postId } = req.params;
+    const  = req.params.id as string;
     const userId = req.user!.userId;
 
     // Verify post exists
@@ -51,7 +51,7 @@ export const createComment = async (req: AuthRequest, res: Response, next: NextF
     return sendSuccess(res, commentWithCounts, 'Comment created', 201);
   } catch (err: any) {
     if (err instanceof z.ZodError) {
-      return sendError(res, 400, 'Validation Error', err.errors);
+      return sendError(res, 400, 'Validation Error', (err as any).errors);
     }
     next(err);
   }
@@ -59,10 +59,10 @@ export const createComment = async (req: AuthRequest, res: Response, next: NextF
 
 export const getComments = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id: postId } = req.params;
+    const  = req.params.id as string;
 
     const comments = await prisma.comment.findMany({
-      where: { postId },
+      where: { postId: postId as string },
       include: {
         author: { select: { id: true, name: true, email: true } },
         reactions: true,
@@ -74,10 +74,10 @@ export const getComments = async (req: Request, res: Response, next: NextFunctio
     const commentMap = new Map<string, any>();
     const rootComments: any[] = [];
 
-    comments.forEach(comment => {
+    comments.forEach((comment: any) => {
       let likes = 0;
       let dislikes = 0;
-      comment.reactions.forEach(reaction => {
+      (comment.reactions as any)?.forEach(reaction => {
         if (reaction.type === 'like') likes++;
         if (reaction.type === 'dislike') dislikes++;
       });
