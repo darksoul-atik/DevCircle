@@ -106,10 +106,10 @@ export default function Favorites() {
         )}
       </div>
 
-      {data && data.total > data.limit && (
+      {data && (
         <Pagination 
           currentPage={page} 
-          totalPages={Math.ceil(data.total / data.limit)} 
+          totalPages={Math.max(1, Math.ceil(data.total / data.limit))} 
           onPageChange={setPage} 
         />
       )}

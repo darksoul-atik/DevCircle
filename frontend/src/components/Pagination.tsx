@@ -7,7 +7,7 @@ interface PaginationProps {
 }
 
 export default function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
-  if (totalPages <= 1) return null;
+  // Always render to show the UI, even if there's only 1 page
 
   const renderPageNumbers = () => {
     const pages = [];
