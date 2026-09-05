@@ -3,6 +3,8 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useDarkMode } from '../hooks/useDarkMode';
 import { FiSun, FiMoon, FiSearch, FiUser, FiLogOut } from 'react-icons/fi';
+import Sidebar from './Sidebar';
+import MobileNav from './MobileNav';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 
@@ -143,9 +145,14 @@ export default function Layout() {
       {/* Main content route transition wrapper could go here if we wanted full page anims, 
           but prompt asks for brief subtle fade on page route transitions. 
           We'll add a simple CSS animation keyframe for page loads. */}
-      <main className="flex-1 animate-in fade-in duration-300">
-        <Outlet />
-      </main>
+      <div className="flex-1 flex max-w-5xl w-full mx-auto px-4 relative">
+        <Sidebar />
+        <main className="flex-1 min-w-0 md:pl-8 pb-16 md:pb-0 animate-in fade-in duration-300">
+          <Outlet />
+        </main>
+      </div>
+
+      <MobileNav />
     </div>
   );
 }
