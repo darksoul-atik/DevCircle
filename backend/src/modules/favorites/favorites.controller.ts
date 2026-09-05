@@ -61,8 +61,9 @@ export const getFavorites = async (req: AuthRequest, res: Response, next: NextFu
           }
         }
       },
-      orderBy: { createdAt: 'desc' }
-    });
+        orderBy: { createdAt: 'desc' }
+      })
+    ]);
 
     const rankedPosts = favorites.map((fav: any) => {
       const post = fav.post;
