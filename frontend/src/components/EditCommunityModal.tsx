@@ -72,7 +72,7 @@ export default function EditCommunityModal({ community, onClose }: EditCommunity
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
       <div className="bg-background w-full max-w-2xl rounded-xl shadow-xl border border-hairline overflow-hidden" onClick={e => e.stopPropagation()}>
         <div className="flex justify-between items-center p-6 border-b border-hairline">
           <h2 className="text-xl font-display font-bold text-primary">Edit Community</h2>
