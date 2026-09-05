@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { FiHome, FiCompass, FiHeart, FiMessageSquare } from 'react-icons/fi';
+import { FiHome, FiCompass, FiHeart } from 'react-icons/fi';
 import client from '../api/client';
 
 export default function Sidebar() {

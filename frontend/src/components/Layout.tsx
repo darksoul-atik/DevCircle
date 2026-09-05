@@ -2,11 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useDarkMode } from '../hooks/useDarkMode';
-import { FiSun, FiMoon, FiSearch, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiSun, FiMoon, FiUser, FiLogOut } from 'react-icons/fi';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
+import SearchDropdown from './SearchDropdown';
 import gsap from 'gsap';
-import { useGSAP } from '@gsap/react';
 
 interface LogoProps {
   className?: string;
@@ -104,10 +104,10 @@ export default function Layout() {
             </nav>
           </div>
           
-          <div className="flex items-center gap-4">
-            <button className="p-2 text-muted hover:text-primary transition-colors">
-              <FiSearch size={18} />
-            </button>
+          <div className="flex items-center gap-4 w-full justify-end">
+            <div className="hidden sm:block flex-1 max-w-sm mr-2">
+              <SearchDropdown />
+            </div>
             
             <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
 

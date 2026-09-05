@@ -228,7 +228,7 @@ export default function Profile() {
             <p className="text-sm text-muted">No experience entries added.</p>
           ) : (
             <div className="space-y-8">
-              {profile.experiences.map((e, index) => (
+              {profile.experiences.map((e) => (
                 <div key={e.id} className="relative pl-6 group">
                   {/* Timeline connector and dot */}
                   <div className="absolute left-[3px] top-2 bottom-[-24px] w-px bg-hairline last:hidden"></div>

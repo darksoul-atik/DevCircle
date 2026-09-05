@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import client from '../api/client';
@@ -33,7 +33,7 @@ export default function CreatePost() {
     }
   });
 
-  const { register, handleSubmit, control, watch, formState: { errors, isSubmitting } } = useForm<PostFormValues>({
+  const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<PostFormValues>({
     resolver: zodResolver(postSchema),
     defaultValues: {
       title: '',

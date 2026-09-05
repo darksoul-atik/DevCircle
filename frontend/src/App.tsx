@@ -9,7 +9,6 @@ import PostDetail from './pages/PostDetail';
 import Profile from './pages/Profile';
 import CommunityDetail from './pages/CommunityDetail';
 import Favorites from './pages/Favorites';
-import SearchDropdown from './components/SearchDropdown';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();

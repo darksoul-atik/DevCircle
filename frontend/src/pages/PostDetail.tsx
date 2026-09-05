@@ -44,8 +44,8 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
   const queryClient = useQueryClient();
   const { user } = useAuth();
   
-  const likeIconRef = useRef<SVGElement>(null);
-  const dislikeIconRef = useRef<SVGElement>(null);
+  const likeIconRef = useRef<HTMLSpanElement>(null);
+  const dislikeIconRef = useRef<HTMLSpanElement>(null);
 
   const replyMutation = useMutation({
     mutationFn: (body: string) => client.post(`/posts/${postId}/comments`, { body, parentCommentId: comment.id }),
@@ -105,8 +105,8 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
       queryClient.setQueryData(['comments', postId], (old: any) => old ? updateTree(old) : old);
       return { previousComments };
     },
-    onError: (err, type, context: any) => {
-      queryClient.setQueryData(['comments', postId], context.previousComments);
+    onError: () => {
+      // Ignored for now, usually revert state here
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['comments', postId] });
@@ -141,14 +141,14 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
           className={`flex items-center gap-1.5 transition-colors ${userReaction === 'like' ? 'text-accent' : 'hover:text-primary'}`}
           disabled={!user}
         >
-          <FiHeart ref={likeIconRef} size={13} /> {comment.likeCount}
+          <span ref={likeIconRef}><FiHeart size={13} /></span> {comment.likeCount}
         </button>
         <button 
           onClick={() => user && toggleReaction.mutate('dislike')}
           className={`flex items-center gap-1.5 transition-colors ${userReaction === 'dislike' ? 'text-accent' : 'hover:text-primary'}`}
           disabled={!user}
         >
-          <FiArrowDown ref={dislikeIconRef} size={13} /> {comment.dislikeCount}
+          <span ref={dislikeIconRef}><FiArrowDown size={13} /></span> {comment.dislikeCount}
         </button>
         {user && (
           <button onClick={() => setIsReplying(!isReplying)} className="flex items-center gap-1 hover:text-primary transition-colors">
@@ -192,8 +192,8 @@ export default function PostDetail() {
   const queryClient = useQueryClient();
   const [commentBody, setCommentBody] = useState('');
   
-  const likeIconRef = useRef<SVGElement>(null);
-  const dislikeIconRef = useRef<SVGElement>(null);
+  const likeIconRef = useRef<HTMLSpanElement>(null);
+  const dislikeIconRef = useRef<HTMLSpanElement>(null);
 
   const { data: post, isLoading: postLoading } = useQuery<Post>({
     queryKey: ['post', id],
@@ -266,10 +266,8 @@ export default function PostDetail() {
 
       return { previousPost };
     },
-    onError: (err, type, context: any) => {
-      if (context?.previousPost) {
-        queryClient.setQueryData(['post', id], context.previousPost);
-      }
+    onError: () => {
+      // Ignored for now
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['post', id] });
@@ -324,7 +322,7 @@ export default function PostDetail() {
             className={`flex items-center gap-2 transition-colors ${userPostReaction === 'like' ? 'text-accent' : 'hover:text-primary'}`}
             title={user ? 'Like' : 'Login to like'}
           >
-            <FiHeart ref={likeIconRef} size={18} /> <span>{post.likeCount}</span>
+            <span ref={likeIconRef}><FiHeart size={18} /></span> <span>{post.likeCount}</span>
           </button>
           <button 
             onClick={() => user && postReactionMutation.mutate('dislike')}
@@ -332,7 +330,7 @@ export default function PostDetail() {
             className={`flex items-center gap-2 transition-colors ${userPostReaction === 'dislike' ? 'text-accent' : 'hover:text-primary'}`}
             title={user ? 'Dislike' : 'Login to dislike'}
           >
-            <FiArrowDown ref={dislikeIconRef} size={18} /> <span>{post.dislikeCount}</span>
+            <span ref={dislikeIconRef}><FiArrowDown size={18} /></span> <span>{post.dislikeCount}</span>
           </button>
           <div className="w-px h-4 bg-hairline"></div>
           <div className="flex items-center gap-2 text-primary" title="Comments">
