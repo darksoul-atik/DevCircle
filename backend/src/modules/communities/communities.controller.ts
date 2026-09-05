@@ -10,6 +10,11 @@ const createCommunitySchema = z.object({
   icon: z.string().optional().nullable(),
 });
 
+const updateCommunitySchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional().nullable(),
+});
+
 const WEIGHT = 2; // For ranking
 
 export const getCommunities = async (req: Request, res: Response, next: NextFunction) => {
@@ -73,7 +78,12 @@ export const getCommunityPosts = async (req: Request, res: Response, next: NextF
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     
-    const community = await prisma.community.findUnique({ where: { slug } });
+    const community = await prisma.community.findUnique({ 
+      where: { slug },
+      include: {
+        createdBy: { select: { id: true, name: true, title: true, avatar: true } }
+      }
+    });
     if (!community) {
       return sendError(res, 404, 'Community not found');
     }
@@ -131,6 +141,49 @@ export const getCommunityPosts = async (req: Request, res: Response, next: NextF
       total,
     });
   } catch (err) {
+    next(err);
+  }
+};
+
+export const updateCommunity = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const slug = req.params.slug as string;
+    const validated = updateCommunitySchema.parse(req.body);
+    
+    const community = await prisma.community.findUnique({ where: { slug } });
+    if (!community) {
+      return sendError(res, 404, 'Community not found');
+    }
+
+    if (community.createdById !== req.user!.userId) {
+      return sendError(res, 403, 'Only the creator can edit this community');
+    }
+
+    let newSlug = community.slug;
+    if (validated.name && validated.name !== community.name) {
+      newSlug = validated.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      const existing = await prisma.community.findUnique({ where: { slug: newSlug } });
+      if (existing && existing.id !== community.id) {
+        return sendError(res, 400, 'A community with a similar name already exists');
+      }
+    }
+
+    const iconUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+
+    const updated = await prisma.community.update({
+      where: { id: community.id },
+      data: {
+        ...(validated.name ? { name: validated.name, slug: newSlug } : {}),
+        ...(validated.description !== undefined ? { description: validated.description } : {}),
+        ...(iconUrl ? { icon: iconUrl } : {}),
+      }
+    });
+
+    return sendSuccess(res, updated, 'Community updated successfully');
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return sendError(res, 400, 'Validation Error', (err as any).issues);
+    }
     next(err);
   }
 };

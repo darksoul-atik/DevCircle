@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { formatDateTime } from '../utils/date';
+import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
+import EditCommunityModal from '../components/EditCommunityModal';
 import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import CommunityIcon from '../components/CommunityIcon';
 import Pagination from '../components/Pagination';
@@ -11,6 +13,8 @@ import Pagination from '../components/Pagination';
 export default function CommunityDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState(1);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { user } = useAuth();
 
   const { data, isLoading } = useQuery({
     queryKey: ['community', slug, page],
@@ -47,14 +51,39 @@ export default function CommunityDetail() {
   return (
     <div className="w-full max-w-4xl mx-auto py-8 space-y-8 px-0 md:px-4">
       {/* Community Header */}
-      <header className="bg-subtle p-8 rounded-lg border border-hairline flex items-center gap-6">
-        <CommunityIcon icon={community.icon} name={community.name} size="lg" />
-        <div>
-          <h1 className="text-2xl font-display font-bold text-primary mb-1">{community.name}</h1>
-          {community.description && (
-            <p className="text-muted text-sm">{community.description}</p>
-          )}
+      <header className="bg-subtle p-8 rounded-lg border border-hairline flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div className="flex items-center gap-6">
+          <CommunityIcon icon={community.icon} name={community.name} size="lg" />
+          <div>
+            <h1 className="text-2xl font-display font-bold text-primary mb-1">{community.name}</h1>
+            {community.description && (
+              <p className="text-muted text-sm mb-3">{community.description}</p>
+            )}
+            
+            {/* Created By Info */}
+            {community.createdBy && (
+              <div 
+                className="flex items-center gap-2 mt-2 cursor-pointer group w-fit"
+                onClick={(e) => handleAuthorClick(e, community.createdBy.id)}
+              >
+                <span className="text-xs text-muted">Created by</span>
+                <Avatar src={community.createdBy.avatar} name={community.createdBy.name} size="xs" />
+                <span className="text-sm font-medium text-primary group-hover:text-accent transition-colors">
+                  {community.createdBy.name}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
+        
+        {user?.userId === community.createdBy?.id && (
+          <button 
+            onClick={() => setIsEditModalOpen(true)}
+            className="px-4 py-2 text-sm font-medium bg-background border border-hairline rounded hover:bg-subtle transition-colors shadow-sm whitespace-nowrap"
+          >
+            Edit Community
+          </button>
+        )}
       </header>
 
       {/* Posts List */}
@@ -135,6 +164,13 @@ export default function CommunityDetail() {
           currentPage={page} 
           totalPages={Math.max(1, Math.ceil(data.total / data.limit))} 
           onPageChange={setPage} 
+        />
+      )}
+
+      {isEditModalOpen && (
+        <EditCommunityModal 
+          community={community} 
+          onClose={() => setIsEditModalOpen(false)} 
         />
       )}
     </div>
