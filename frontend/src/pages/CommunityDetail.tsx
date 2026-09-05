@@ -81,7 +81,7 @@ export default function CommunityDetail() {
             onClick={() => setIsEditModalOpen(true)}
             className="px-4 py-2 text-sm font-medium bg-background border border-hairline rounded hover:bg-subtle transition-colors shadow-sm whitespace-nowrap"
           >
-            Edit Community
+            Edit Community details
           </button>
         )}
       </header>
