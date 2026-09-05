@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
@@ -5,14 +6,16 @@ import { formatDateTime } from '../utils/date';
 import Avatar from '../components/Avatar';
 import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import CommunityIcon from '../components/CommunityIcon';
+import Pagination from '../components/Pagination';
 
 export default function CommunityDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const [page, setPage] = useState(1);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['community', slug],
+    queryKey: ['community', slug, page],
     queryFn: async () => {
-      const res = await client.get(`/communities/${slug}/posts`);
+      const res = await client.get(`/communities/${slug}/posts?page=${page}&limit=10`);
       return res.data.data;
     }
   });
@@ -126,6 +129,14 @@ export default function CommunityDetail() {
           ))
         )}
       </div>
+
+      {data && data.total > data.limit && (
+        <Pagination 
+          currentPage={page} 
+          totalPages={Math.ceil(data.total / data.limit)} 
+          onPageChange={setPage} 
+        />
+      )}
     </div>
   );
 }

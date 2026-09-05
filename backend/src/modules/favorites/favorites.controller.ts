@@ -43,9 +43,14 @@ export const toggleFavorite = async (req: AuthRequest, res: Response, next: Next
 export const getFavorites = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user!.userId;
-    
-    const favorites = await prisma.favorite.findMany({
-      where: { userId },
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const [total, favorites] = await Promise.all([
+      prisma.favorite.count({ where: { userId } }),
+      prisma.favorite.findMany({
+        where: { userId },
       include: {
         post: {
           include: {
@@ -82,7 +87,14 @@ export const getFavorites = async (req: AuthRequest, res: Response, next: NextFu
       };
     });
 
-    return sendSuccess(res, rankedPosts);
+    const paginatedPosts = rankedPosts.slice(skip, skip + limit);
+
+    return sendSuccess(res, {
+      items: paginatedPosts,
+      page,
+      limit,
+      total,
+    });
   } catch (err) {
     next(err);
   }

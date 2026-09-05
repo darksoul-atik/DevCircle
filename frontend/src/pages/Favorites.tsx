@@ -1,15 +1,19 @@
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { formatDateTime } from '../utils/date';
 import Avatar from '../components/Avatar';
 import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import Pagination from '../components/Pagination';
 
 export default function Favorites() {
-  const { data: posts, isLoading } = useQuery({
-    queryKey: ['favorites'],
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ['favorites', page],
     queryFn: async () => {
-      const res = await client.get('/favorites');
+      const res = await client.get(`/favorites?page=${page}&limit=10`);
       return res.data.data;
     }
   });
@@ -38,12 +42,12 @@ export default function Favorites() {
       <h1 className="text-2xl font-display font-bold text-primary mb-8 px-4 md:px-0">Favorites</h1>
       
       <div className="space-y-4">
-        {posts?.length === 0 ? (
+        {(!data || data.items.length === 0) ? (
           <div className="text-center py-12 border border-hairline border-dashed rounded-lg text-muted">
             You haven't favorited any posts yet.
           </div>
         ) : (
-          posts?.map((post: any) => (
+          data.items.map((post: any) => (
             <Link 
               key={post.id} 
               to={`/posts/${post.id}`}
@@ -101,6 +105,14 @@ export default function Favorites() {
           ))
         )}
       </div>
+
+      {data && data.total > data.limit && (
+        <Pagination 
+          currentPage={page} 
+          totalPages={Math.ceil(data.total / data.limit)} 
+          onPageChange={setPage} 
+        />
+      )}
     </div>
   );
 }

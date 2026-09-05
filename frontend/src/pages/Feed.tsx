@@ -6,6 +6,7 @@ import { FiMessageSquare, FiArrowUp, FiArrowDown, FiChevronLeft, FiChevronRight,
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import { formatDateTime } from '../utils/date';
+import Pagination from '../components/Pagination';
 
 interface Post {
   id: string;
@@ -172,25 +173,11 @@ export default function Feed() {
 
       {/* Pagination */}
       {data && data.total > data.limit && (
-        <div className="mt-12 flex justify-between items-center border-t border-hairline pt-6">
-          <button 
-            disabled={page === 1}
-            onClick={() => setPage(p => p - 1)}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium border border-hairline rounded hover:bg-subtle disabled:opacity-30 transition-colors"
-          >
-            <FiChevronLeft size={16} /> Prev
-          </button>
-          <span className="text-sm font-mono text-muted">
-            {page} / {Math.ceil(data.total / data.limit)}
-          </span>
-          <button 
-            disabled={page === Math.ceil(data.total / data.limit)}
-            onClick={() => setPage(p => p + 1)}
-            className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium border border-hairline rounded hover:bg-subtle disabled:opacity-30 transition-colors"
-          >
-            Next <FiChevronRight size={16} />
-          </button>
-        </div>
+        <Pagination 
+          currentPage={page} 
+          totalPages={Math.ceil(data.total / data.limit)} 
+          onPageChange={setPage} 
+        />
       )}
     </div>
   );

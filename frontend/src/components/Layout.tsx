@@ -7,6 +7,7 @@ import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 import SearchDropdown from './SearchDropdown';
 import Avatar from './Avatar';
+import Footer from './Footer';
 import gsap from 'gsap';
 
 interface LogoProps {
@@ -125,6 +126,7 @@ export default function Layout() {
         </main>
       </div>
 
+      <Footer />
       <MobileNav />
     </div>
   );
