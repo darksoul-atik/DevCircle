@@ -3,7 +3,7 @@ import { Logo } from './Layout';
 
 export default function Footer() {
   return (
-    <footer className="w-full bg-[#F8F7FF] dark:bg-[#131221] border-t border-hairline mt-auto">
+    <footer className="w-full bg-[#FCFBFF] dark:bg-[#181628] border-t border-hairline mt-auto">
       <div className="w-full max-w-7xl mx-auto px-4 md:px-8 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex flex-col items-center md:items-start gap-2">
           <Logo iconSize={20} textSizeClass="text-lg" />
