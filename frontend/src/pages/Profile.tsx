@@ -442,7 +442,11 @@ export default function Profile() {
               <button 
                 onClick={() => {
                   if(exp.title && exp.company && exp.startDate) {
-                    editingExpId ? editExp.mutate() : addExp.mutate();
+                    if (editingExpId) {
+                      editExp.mutate();
+                    } else {
+                      addExp.mutate();
+                    }
                   }
                 }}
                 disabled={!exp.title || !exp.company || !exp.startDate || addExp.isPending || editExp.isPending}

@@ -56,11 +56,6 @@ export default function UserProfile() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
 
-  // If the user clicks on their own ID, redirect to their editable profile
-  if (id === user?.id) {
-    return <Navigate to="/profile/me" replace />;
-  }
-
   const { data: profile, isLoading, isError } = useQuery<ProfileData>({
     queryKey: ['userProfile', id],
     queryFn: async () => {
@@ -70,6 +65,10 @@ export default function UserProfile() {
     enabled: !!id,
   });
 
+  // If the user clicks on their own ID, redirect to their editable profile
+  if (id === user?.id) {
+    return <Navigate to="/profile/me" replace />;
+  }
   if (isLoading) return <ProfileSkeleton />;
   if (isError || !profile) return <div className="max-w-3xl mx-auto py-12 px-4 text-center text-muted">User not found.</div>;
 

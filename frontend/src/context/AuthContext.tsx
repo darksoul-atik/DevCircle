@@ -48,7 +48,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           email: profileRes.data.data.email,
           avatar: profileRes.data.data.avatar,
         });
-      } catch (err) {
+      } catch (_err) {
         setAccessToken(null);
         setUser(null);
       } finally {

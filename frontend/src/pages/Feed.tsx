@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 import { Link, useNavigate } from 'react-router-dom';
-import { FiMessageSquare, FiArrowUp, FiArrowDown, FiChevronLeft, FiChevronRight, FiSearch, FiEdit3 } from 'react-icons/fi';
+import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import { formatDateTime } from '../utils/date';
@@ -39,7 +39,6 @@ function FeedSkeleton() {
 }
 
 export default function Feed() {
-  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -51,17 +50,12 @@ export default function Feed() {
   };
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['posts', page, search],
+    queryKey: ['posts', page],
     queryFn: async () => {
-      const res = await client.get('/posts', { params: { page, q: search } });
+      const res = await client.get('/posts', { params: { page } });
       return res.data.data;
     },
   });
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(1); // Reset page on new search
-  };
 
   if (isError) {
     return (
