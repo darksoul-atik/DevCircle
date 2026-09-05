@@ -77,24 +77,6 @@ export default function Feed() {
     <div className="w-full h-full flex flex-col py-6 md:py-10 px-0 md:px-4">
       <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-display tracking-tight text-primary">Recent Posts</h1>
-        
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <form onSubmit={handleSearch} className="relative flex-1 md:w-64">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
-            <input
-              type="text"
-              placeholder="Search..."
-              className="w-full pl-9 pr-4 py-1.5 text-sm border border-hairline rounded-md bg-subtle text-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </form>
-          {user && (
-            <Link to="/posts/new" className="shrink-0 bg-primary text-base px-3 py-1.5 border border-hairline rounded-md hover:bg-subtle transition-colors flex items-center gap-2">
-              <FiEdit3 size={16} className="text-muted" /> <span className="text-sm font-medium">New</span>
-            </Link>
-          )}
-        </div>
       </header>
 
       {isLoading ? (
@@ -118,7 +100,7 @@ export default function Feed() {
               <Link 
                 key={post.id} 
                 to={`/posts/${post.id}`} 
-                className={`group block bg-base rounded-xl p-6 border border-hairline shadow-sm hover:shadow-md hover:border-accent/30 transition-all relative overflow-hidden`}
+                className={`group block bg-subtle/40 backdrop-blur-md rounded-2xl p-6 border border-hairline/50 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.1)] hover:border-accent/30 transition-all relative overflow-hidden`}
               >
                 {/* Ranking Signal Indicator */}
                 {isHot && (

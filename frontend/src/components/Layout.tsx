@@ -82,7 +82,7 @@ export default function Layout() {
           </div>
           
           <div className="flex items-center gap-4 w-full justify-end">
-            <div className="hidden sm:block flex-1 max-w-sm mr-2">
+            <div className="flex-1 max-w-sm mr-2">
               <SearchDropdown />
             </div>
             

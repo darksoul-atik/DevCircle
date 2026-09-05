@@ -441,7 +441,7 @@ export default function PostDetail() {
 
   return (
     <div className="max-w-[72ch] mx-auto py-12 px-4 relative pb-32">
-      <article className="mb-12">
+      <article className="mb-12 bg-subtle/40 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-hairline/50 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
         {isEditingPost ? (
           <form onSubmit={(e) => { e.preventDefault(); editPostMutation.mutate({ title: editTitle, body: editPostBody }); }} className="mb-8">
             <input
@@ -600,6 +600,15 @@ export default function PostDetail() {
           </div>
         )}
       </section>
+
+      <div className="mt-12 flex justify-center">
+        <Link 
+          to="/" 
+          className="px-6 py-2.5 bg-base text-primary font-medium text-sm rounded-full shadow-[4px_4px_10px_rgba(0,0,0,0.1),-4px_-4px_10px_rgba(255,255,255,0.05)] border border-hairline/20 hover:shadow-[inset_4px_4px_10px_rgba(0,0,0,0.1),inset_-4px_-4px_10px_rgba(255,255,255,0.05)] transition-all flex items-center gap-2"
+        >
+          &larr; Back to Feed
+        </Link>
+      </div>
     </div>
   );
 }

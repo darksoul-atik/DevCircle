@@ -94,7 +94,7 @@ export default function SearchDropdown() {
                   {results.users.map(u => (
                     <button
                       key={u.id}
-                      onClick={() => handleResultClick(`/profile/${u.id}`)} // Or wherever users go
+                      onClick={() => handleResultClick(`/users/${u.id}`)}
                       className="w-full text-left px-4 py-2 text-sm hover:bg-subtle hover:text-accent transition-colors flex items-center gap-2"
                     >
                       <FiUser size={14} className="text-muted" /> {u.name}

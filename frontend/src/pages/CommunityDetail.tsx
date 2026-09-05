@@ -72,7 +72,7 @@ export default function CommunityDetail() {
             <Link 
               key={post.id} 
               to={`/posts/${post.id}`}
-              className="block p-5 bg-base border border-hairline rounded-lg hover:border-accent transition-colors shadow-sm hover:shadow group"
+              className="group block bg-subtle/40 backdrop-blur-md rounded-2xl p-6 border border-hairline/50 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.1)] hover:border-accent/30 transition-all relative overflow-hidden"
             >
               <h2 className="text-lg font-display font-semibold text-primary mb-2 group-hover:text-accent transition-colors">
                 {post.title}
@@ -107,8 +107,8 @@ export default function CommunityDetail() {
                 </div>
               )}
               {post.imageUrl && (
-                <div className="w-full h-48 mb-4 bg-subtle rounded-md overflow-hidden border border-hairline">
-                  <img src={import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}${post.imageUrl}` : `http://localhost:3000${post.imageUrl}`} alt="" className="w-full h-full object-cover" />
+                <div className="w-full mb-4 bg-subtle rounded-md overflow-hidden border border-hairline flex items-center justify-center">
+                  <img src={import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}${post.imageUrl}` : `http://localhost:3000${post.imageUrl}`} alt="" className="w-full h-auto max-h-[500px] object-contain" />
                 </div>
               )}
               <div className="flex items-center gap-6 text-xs font-mono text-muted">
