@@ -102,10 +102,7 @@ export default function Feed() {
                 to={`/posts/${post.id}`} 
                 className={`group block bg-subtle/40 backdrop-blur-md rounded-2xl p-6 border border-hairline/50 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.1)] hover:border-accent/30 transition-all relative overflow-hidden`}
               >
-                {/* Ranking Signal Indicator */}
-                {isHot && (
-                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-signal" title="Trending"></div>
-                )}
+
 
                 {post.community && (
                   <div className="absolute top-6 right-6 text-xs font-bold text-accent uppercase tracking-wider">
