@@ -74,14 +74,14 @@ export default function EditCommunityModal({ community, onClose }: EditCommunity
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-background w-full max-w-2xl rounded-xl shadow-xl border border-hairline overflow-hidden" onClick={e => e.stopPropagation()}>
-        <div className="flex justify-between items-center p-6 border-b border-hairline">
+        <div className="flex bg-white dark:bg-gray-900 justify-between items-center p-6 border-b border-hairline">
           <h2 className="text-xl font-display font-bold text-primary">Edit Community</h2>
           <button onClick={onClose} className="p-2 text-muted hover:text-primary hover:bg-subtle rounded-full transition-colors">
             <FiX size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-900 p-6 space-y-5">
           {error && (
             <div className="p-3 text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-md">
               {error}
