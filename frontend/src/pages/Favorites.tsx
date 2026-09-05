@@ -34,8 +34,8 @@ export default function Favorites() {
   }
 
   return (
-    <div className="py-8">
-      <h1 className="text-2xl font-display font-bold text-primary mb-8">Favorites</h1>
+    <div className="w-full max-w-4xl mx-auto py-8 px-0 md:px-4">
+      <h1 className="text-2xl font-display font-bold text-primary mb-8 px-4 md:px-0">Favorites</h1>
       
       <div className="space-y-4">
         {posts?.length === 0 ? (

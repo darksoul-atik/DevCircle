@@ -74,7 +74,7 @@ export default function Feed() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col py-6 md:py-10 px-0 md:px-4">
+    <div className="w-full max-w-4xl mx-auto h-full flex flex-col py-6 md:py-10 px-0 md:px-4">
       <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-display tracking-tight text-primary">Recent Posts</h1>
       </header>

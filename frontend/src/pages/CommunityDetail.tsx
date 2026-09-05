@@ -42,7 +42,7 @@ export default function CommunityDetail() {
   const { community, items: posts } = data;
 
   return (
-    <div className="py-8 space-y-8">
+    <div className="w-full max-w-4xl mx-auto py-8 space-y-8 px-0 md:px-4">
       {/* Community Header */}
       <header className="bg-subtle p-8 rounded-lg border border-hairline flex items-center gap-6">
         <CommunityIcon icon={community.icon} name={community.name} size="lg" />

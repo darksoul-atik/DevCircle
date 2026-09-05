@@ -440,7 +440,7 @@ export default function PostDetail() {
   const userPostReaction = post.reactions?.find(r => r.userId === user?.id)?.type;
 
   return (
-    <div className="max-w-[72ch] mx-auto py-12 px-4 relative pb-32">
+    <div className="max-w-4xl mx-auto py-12 px-4 relative pb-32">
       <article className="mb-12 bg-subtle/40 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-hairline/50 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
         {isEditingPost ? (
           <form onSubmit={(e) => { e.preventDefault(); editPostMutation.mutate({ title: editTitle, body: editPostBody }); }} className="mb-8">
