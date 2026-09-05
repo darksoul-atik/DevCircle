@@ -7,6 +7,9 @@ import Feed from './pages/Feed';
 import CreatePost from './pages/CreatePost';
 import PostDetail from './pages/PostDetail';
 import Profile from './pages/Profile';
+import CommunityDetail from './pages/CommunityDetail';
+import Favorites from './pages/Favorites';
+import SearchDropdown from './components/SearchDropdown';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -51,6 +54,22 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/communities/:slug" 
+          element={
+            <ProtectedRoute>
+              <CommunityDetail />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/favorites" 
+          element={
+            <ProtectedRoute>
+              <Favorites />
             </ProtectedRoute>
           } 
         />
