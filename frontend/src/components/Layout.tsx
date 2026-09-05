@@ -79,12 +79,12 @@ export default function Layout() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-base transition-colors duration-200">
+    <div className="min-h-screen flex flex-col transition-colors duration-200">
       <header 
         className={`sticky top-0 z-50 transition-all duration-200 border-b ${
           scrolled 
-            ? 'bg-base/80 backdrop-blur-md border-hairline' 
-            : 'bg-base border-transparent'
+            ? 'bg-base/90 backdrop-blur-md border-hairline shadow-sm' 
+            : 'bg-base border-hairline'
         }`}
       >
         <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">

@@ -4,6 +4,8 @@ import client from '../api/client';
 import { Link } from 'react-router-dom';
 import { FiMessageSquare, FiHeart, FiArrowDown, FiChevronLeft, FiChevronRight, FiSearch, FiEdit3 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import Avatar from '../components/Avatar';
+import { formatDateTime } from '../utils/date';
 
 interface Post {
   id: string;
@@ -21,7 +23,7 @@ function FeedSkeleton() {
   return (
     <div className="animate-pulse space-y-6">
       {[1, 2, 3].map(i => (
-        <div key={i} className="py-6 border-b border-hairline flex flex-col gap-3">
+        <div key={i} className="bg-base rounded-xl p-6 border border-hairline flex flex-col gap-3 shadow-sm">
           <div className="h-4 w-48 bg-subtle rounded"></div>
           <div className="h-6 w-3/4 bg-subtle rounded"></div>
           <div className="h-4 w-full bg-subtle rounded"></div>
@@ -99,24 +101,25 @@ export default function Feed() {
           )}
         </div>
       ) : (
-        <div className="flex flex-col">
+        <div className="flex flex-col gap-4">
           {data?.items.map((post: Post) => {
             const isHot = post.score >= 5; // Example threshold for signal
             return (
               <Link 
                 key={post.id} 
                 to={`/posts/${post.id}`} 
-                className={`group block py-6 border-b border-hairline transition-colors hover:bg-subtle/50 relative ${isHot ? 'pl-4' : ''}`}
+                className={`group block bg-base rounded-xl p-6 border border-hairline shadow-sm hover:shadow-md hover:border-accent/30 transition-all relative overflow-hidden`}
               >
                 {/* Ranking Signal Indicator */}
                 {isHot && (
-                  <div className="absolute left-0 top-6 bottom-6 w-1 bg-signal rounded-r-sm" title="Trending"></div>
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-signal" title="Trending"></div>
                 )}
                 
-                <div className="flex items-center gap-2 text-xs font-mono text-muted mb-2">
-                  <span className="text-primary font-medium">@{post.author.name.toLowerCase().replace(/\s/g, '')}</span>
+                <div className="flex items-center gap-3 text-xs font-mono text-muted mb-4">
+                  <Avatar name={post.author.name} size="sm" />
+                  <span className="text-primary font-medium">{post.author.name} (@{post.author.name.toLowerCase().replace(/\s/g, '')})</span>
                   <span>·</span>
-                  <time>{new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</time>
+                  <time>{formatDateTime(post.createdAt)}</time>
                   {isHot && (
                     <>
                       <span>·</span>

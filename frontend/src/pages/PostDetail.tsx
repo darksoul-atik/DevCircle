@@ -5,6 +5,8 @@ import client from '../api/client';
 import ReactMarkdown from 'react-markdown';
 import { FiMessageSquare, FiHeart, FiArrowDown, FiCornerDownRight } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
+import Avatar from '../components/Avatar';
+import { formatDateTime } from '../utils/date';
 import gsap from 'gsap';
 
 interface Reaction {
@@ -125,9 +127,10 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
       <div className="absolute -left-[1px] top-4 w-[1px] h-4 bg-hairline"></div>
       
       <div className="flex items-center gap-2 mb-1.5 font-mono text-xs text-muted">
-        <span className="font-medium text-primary">@{comment.author.name.toLowerCase().replace(/\s/g, '')}</span>
+        <Avatar name={comment.author.name} size="sm" />
+        <span className="font-medium text-primary">{comment.author.name} (@{comment.author.name.toLowerCase().replace(/\s/g, '')})</span>
         <span>·</span>
-        <time>{new Date(comment.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</time>
+        <time>{formatDateTime(comment.createdAt)}</time>
       </div>
       
       <p className="text-sm text-primary leading-relaxed mb-2">{comment.body}</p>
@@ -164,8 +167,8 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
             onChange={(e) => setReplyBody(e.target.value)}
           />
           <div className="flex gap-2 mt-2 justify-end">
-            <button type="button" onClick={() => setIsReplying(false)} className="text-xs font-medium text-muted hover:text-primary">Cancel</button>
-            <button type="submit" disabled={replyMutation.isPending} className="text-xs font-medium bg-accent text-white px-3 py-1.5 rounded-md hover:bg-accent/90">
+            <button type="button" onClick={() => setIsReplying(false)} className="text-xs font-medium text-muted hover:text-primary px-3 py-1.5 border border-transparent rounded-md transition-colors">Cancel</button>
+            <button type="submit" disabled={replyMutation.isPending} className="text-xs font-medium bg-accent text-white px-3 py-1.5 rounded-md hover:bg-accent/90 disabled:opacity-50 transition-colors shadow-sm">
               {replyMutation.isPending ? 'Replying...' : 'Reply'}
             </button>
           </div>
@@ -302,40 +305,43 @@ export default function PostDetail() {
           {post.title}
         </h1>
         
-        <div className="flex items-center gap-2 text-sm font-mono text-muted border-b border-hairline pb-6 mb-8">
-          <span className="font-medium text-primary">@{post.author.name.toLowerCase().replace(/\s/g, '')}</span>
+        <div className="flex items-center gap-3 text-sm font-mono text-muted border-b border-hairline pb-6 mb-8">
+          <Avatar name={post.author.name} size="md" />
+          <span className="font-medium text-primary">{post.author.name} (@{post.author.name.toLowerCase().replace(/\s/g, '')})</span>
           <span>·</span>
-          <time>{new Date(post.createdAt).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+          <time>{formatDateTime(post.createdAt)}</time>
         </div>
         
-        <div className="prose prose-p:text-primary prose-headings:font-display prose-headings:text-primary prose-a:text-accent prose-code:text-primary prose-code:bg-subtle prose-code:px-1 prose-code:py-0.5 prose-code:rounded max-w-none text-base leading-relaxed">
+        <div className="prose prose-p:text-primary prose-headings:font-display prose-headings:text-primary prose-a:text-accent prose-code:text-primary prose-code:bg-subtle prose-code:px-1 prose-code:py-0.5 prose-code:rounded max-w-none text-base leading-relaxed mb-10">
           <ReactMarkdown>{post.body}</ReactMarkdown>
+        </div>
+
+        {/* Reaction Bar anchored within post body instead of floating loosely */}
+        <div className="flex items-center gap-6 text-sm font-mono text-muted bg-subtle/50 px-6 py-3 rounded-full border border-hairline w-max mx-auto shadow-sm">
+          <button 
+            onClick={() => user && postReactionMutation.mutate('like')}
+            disabled={!user}
+            className={`flex items-center gap-2 transition-colors ${userPostReaction === 'like' ? 'text-accent' : 'hover:text-primary'}`}
+            title={user ? 'Like' : 'Login to like'}
+          >
+            <FiHeart ref={likeIconRef} size={18} /> <span>{post.likeCount}</span>
+          </button>
+          <button 
+            onClick={() => user && postReactionMutation.mutate('dislike')}
+            disabled={!user}
+            className={`flex items-center gap-2 transition-colors ${userPostReaction === 'dislike' ? 'text-accent' : 'hover:text-primary'}`}
+            title={user ? 'Dislike' : 'Login to dislike'}
+          >
+            <FiArrowDown ref={dislikeIconRef} size={18} /> <span>{post.dislikeCount}</span>
+          </button>
+          <div className="w-px h-4 bg-hairline"></div>
+          <div className="flex items-center gap-2 text-primary" title="Comments">
+            <FiMessageSquare size={18} /> <span>{post.commentCount}</span>
+          </div>
         </div>
       </article>
 
-      {/* Floating Reaction Bar (Glassmorphism) */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-subtle/70 backdrop-blur-md border border-hairline shadow-sm rounded-full px-6 py-2.5 flex items-center gap-6 text-sm font-mono text-muted">
-        <button 
-          onClick={() => user && postReactionMutation.mutate('like')}
-          disabled={!user}
-          className={`flex items-center gap-2 transition-colors ${userPostReaction === 'like' ? 'text-accent' : 'hover:text-primary'}`}
-          title={user ? 'Like' : 'Login to like'}
-        >
-          <FiHeart ref={likeIconRef} size={18} /> <span>{post.likeCount}</span>
-        </button>
-        <button 
-          onClick={() => user && postReactionMutation.mutate('dislike')}
-          disabled={!user}
-          className={`flex items-center gap-2 transition-colors ${userPostReaction === 'dislike' ? 'text-accent' : 'hover:text-primary'}`}
-          title={user ? 'Dislike' : 'Login to dislike'}
-        >
-          <FiArrowDown ref={dislikeIconRef} size={18} /> <span>{post.dislikeCount}</span>
-        </button>
-        <div className="w-px h-4 bg-hairline"></div>
-        <div className="flex items-center gap-2 text-primary" title="Comments">
-          <FiMessageSquare size={18} /> <span>{post.commentCount}</span>
-        </div>
-      </div>
+
       
       <section className="pt-8 border-t border-hairline">
         <h2 className="text-xl font-display font-medium text-primary mb-8">Discussion</h2>
@@ -353,7 +359,7 @@ export default function PostDetail() {
               <button 
                 type="submit" 
                 disabled={commentMutation.isPending || !commentBody.trim()}
-                className="bg-accent text-white px-5 py-2 text-sm font-medium rounded-md hover:bg-accent/90 disabled:opacity-50 transition-colors"
+                className="bg-accent text-white px-5 py-2 text-sm font-medium rounded-md hover:bg-accent/90 disabled:opacity-50 transition-colors shadow-sm"
               >
                 {commentMutation.isPending ? 'Posting...' : 'Post Comment'}
               </button>
