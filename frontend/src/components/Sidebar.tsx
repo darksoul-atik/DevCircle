@@ -1,7 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { FiHome, FiCompass, FiHeart } from 'react-icons/fi';
+import { FiHome, FiHeart, FiPlusSquare, FiPlusCircle } from 'react-icons/fi';
 import client from '../api/client';
+import CommunityIcon from './CommunityIcon';
 
 export default function Sidebar() {
   const location = useLocation();
@@ -16,7 +17,8 @@ export default function Sidebar() {
 
   const navItems = [
     { label: 'Feed', path: '/', icon: FiHome },
-    { label: 'Communities', path: '/communities', icon: FiCompass },
+    { label: 'Add Post', path: '/posts/new', icon: FiPlusSquare },
+    { label: 'Add Community', path: '/communities/new', icon: FiPlusCircle },
     { label: 'Favorites', path: '/favorites', icon: FiHeart },
   ];
 
@@ -40,9 +42,14 @@ export default function Sidebar() {
       </nav>
 
       <div>
-        <h3 className="px-3 text-xs font-semibold text-muted tracking-wider uppercase mb-3">
-          Communities
-        </h3>
+        <div className="flex items-center justify-between px-3 mb-3">
+          <h3 className="text-xs font-semibold text-muted tracking-wider uppercase">
+            Communities
+          </h3>
+          <Link to="/communities/new" className="text-muted hover:text-accent transition-colors" title="Add Community">
+            <FiPlusCircle size={14} />
+          </Link>
+        </div>
         <div className="space-y-1 overflow-y-auto max-h-[50vh] pr-2 custom-scrollbar">
           {communities?.map((community: any) => {
             const path = `/communities/${community.slug}`;
@@ -53,9 +60,7 @@ export default function Sidebar() {
                 to={path}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors ${isActive ? 'bg-subtle text-primary font-medium' : 'text-muted hover:bg-subtle/50 hover:text-primary'}`}
               >
-                <span className="w-5 h-5 rounded flex items-center justify-center bg-subtle text-xs text-primary font-display border border-hairline">
-                  {community.icon ? community.icon.substring(0, 2).toUpperCase() : community.name.substring(0, 2).toUpperCase()}
-                </span>
+                <CommunityIcon icon={community.icon} name={community.name} size="sm" />
                 <span className="truncate">{community.name}</span>
               </Link>
             );

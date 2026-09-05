@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { multiFieldSearch } from './search.controller';
+import { multiFieldSearch } from '../modules/search/search.controller';
 
 const router = Router();
 

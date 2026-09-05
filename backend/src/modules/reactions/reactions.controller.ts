@@ -56,6 +56,8 @@ export const toggleReaction = async (req: AuthRequest, res: Response, next: Next
           targetType: validated.targetType,
           targetId: validated.targetId,
           type: validated.type,
+          postId: validated.targetType === 'post' ? validated.targetId : null,
+          commentId: validated.targetType === 'comment' ? validated.targetId : null,
         }
       });
       return sendSuccess(res, { action: 'added', reaction: newReaction }, 'Reaction added', 201);

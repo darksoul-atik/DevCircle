@@ -60,9 +60,9 @@ export const createPost = async (req: AuthRequest, res: Response, next: NextFunc
 
 export const getPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const page = parseInt(req.query. as string) || 1;
-    const limit = parseInt(req.query. as string) || 10;
-    const search = req.query. as string;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const search = req.query.q as string;
 
     const skip = (page - 1) * limit;
 
@@ -78,7 +78,8 @@ export const getPosts = async (req: Request, res: Response, next: NextFunction) 
       prisma.post.findMany({
         where: whereClause,
         include: {
-          author: { select: { name: true, email: true } },
+          author: { select: { name: true, email: true, avatar: true, title: true } },
+          community: { select: { name: true, slug: true } },
           _count: {
             select: { comments: true }
           },
@@ -136,13 +137,15 @@ export const getPosts = async (req: Request, res: Response, next: NextFunction) 
 
 export const getPostById = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const  = req.params. as string;
+    const id = req.params.id as string;
 
     const post = await prisma.post.findUnique({
       where: { id },
       include: {
-        author: { select: { id: true, name: true, email: true } },
+        author: { select: { id: true, name: true, email: true, avatar: true, title: true } },
+        community: { select: { name: true, slug: true } },
         reactions: true,
+        favorites: true,
         _count: { select: { comments: true } }
       },
     });
@@ -168,6 +171,83 @@ export const getPostById = async (req: Request, res: Response, next: NextFunctio
     };
 
     return sendSuccess(res, responseData);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updatePost = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const validated = createPostSchema.partial().parse(req.body);
+    const userId = req.user!.userId;
+
+    const post = await prisma.post.findUnique({ where: { id } });
+    if (!post) {
+      return sendError(res, 404, 'Post not found');
+    }
+    if (post.authorId !== userId) {
+      return sendError(res, 403, 'Forbidden: You are not the author of this post');
+    }
+
+    let tagsArray = post.tags;
+    if (validated.tags) {
+      if (Array.isArray(validated.tags)) {
+        tagsArray = validated.tags.map(t => t.toLowerCase().replace(/^#/, ''));
+      } else {
+        tagsArray = validated.tags.split(',').map(t => t.trim().toLowerCase().replace(/^#/, ''));
+      }
+    }
+
+    let imageUrl = post.imageUrl;
+    if (req.file) {
+      imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const updatedPost = await prisma.post.update({
+      where: { id },
+      data: {
+        title: validated.title ?? post.title,
+        body: validated.body ?? post.body,
+        tags: tagsArray,
+        imageUrl,
+      }
+    });
+
+    return sendSuccess(res, updatedPost, 'Post updated successfully');
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return sendError(res, 400, 'Validation Error', (err as any).errors);
+    }
+    next(err);
+  }
+};
+
+export const deletePost = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const userId = req.user!.userId;
+
+    const post = await prisma.post.findUnique({ where: { id } });
+    if (!post) {
+      return sendError(res, 404, 'Post not found');
+    }
+    if (post.authorId !== userId) {
+      return sendError(res, 403, 'Forbidden: You are not the author of this post');
+    }
+
+    const commentIds = await prisma.comment.findMany({ where: { postId: id }, select: { id: true } });
+    const cIds = commentIds.map(c => c.id);
+
+    await prisma.$transaction([
+      prisma.favorite.deleteMany({ where: { postId: id } }),
+      prisma.reaction.deleteMany({ where: { targetType: 'post', targetId: id } }),
+      prisma.reaction.deleteMany({ where: { targetType: 'comment', targetId: { in: cIds } } }),
+      prisma.comment.deleteMany({ where: { postId: id } }),
+      prisma.post.delete({ where: { id } }),
+    ]);
+
+    return sendSuccess(res, null, 'Post deleted successfully');
   } catch (err) {
     next(err);
   }

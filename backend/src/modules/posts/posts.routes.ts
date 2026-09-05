@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPost, getPosts, getPostById } from './posts.controller';
+import { createPost, getPosts, getPostById, updatePost, deletePost } from './posts.controller';
 import { upload } from '../../utils/multer';
 import { requireAuth } from '../../middleware/authHandler';
 import commentsRoutes from '../comments/comments.routes';
@@ -67,6 +67,8 @@ router.get('/', getPosts);
  *         description: Success
  */
 router.get('/:id', getPostById);
+router.put('/:id', requireAuth, upload.single('image'), updatePost);
+router.delete('/:id', requireAuth, deletePost);
 
 router.use('/:id/comments', commentsRoutes);
 

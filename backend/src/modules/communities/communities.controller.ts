@@ -7,7 +7,7 @@ import { AuthRequest } from '../../middleware/authHandler';
 const createCommunitySchema = z.object({
   name: z.string().min(1),
   description: z.string().optional().nullable(),
-  icon: z.string().min(1),
+  icon: z.string().optional().nullable(),
 });
 
 const WEIGHT = 2; // For ranking
@@ -46,12 +46,14 @@ export const createCommunity = async (req: AuthRequest, res: Response, next: Nex
       return sendError(res, 400, 'A community with a similar name already exists');
     }
 
+    const iconUrl = req.file ? `/uploads/${req.file.filename}` : (validated.icon || null);
+
     const community = await prisma.community.create({
       data: {
         name: validated.name,
         slug,
         description: validated.description,
-        icon: validated.icon,
+        icon: iconUrl,
         createdById: req.user!.userId,
       }
     });
@@ -67,7 +69,7 @@ export const createCommunity = async (req: AuthRequest, res: Response, next: Nex
 
 export const getCommunityPosts = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { slug } = req.params;
+    const slug = req.params.slug as string;
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     
@@ -83,7 +85,7 @@ export const getCommunityPosts = async (req: Request, res: Response, next: NextF
       prisma.post.findMany({
         where: { communityId: community.id },
         include: {
-          author: { select: { name: true, email: true } },
+          author: { select: { name: true, email: true, avatar: true, title: true } },
           _count: { select: { comments: true } },
           reactions: true,
         },

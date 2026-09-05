@@ -6,7 +6,9 @@ import { AuthRequest } from '../../middleware/authHandler';
 
 const profileUpdateSchema = z.object({
   name: z.string().optional(),
+  title: z.string().optional().nullable(),
   bio: z.string().optional().nullable(),
+  avatar: z.string().url().optional().nullable(),
 });
 
 const skillSchema = z.object({
@@ -80,7 +82,7 @@ export const addSkill = async (req: AuthRequest, res: Response, next: NextFuncti
 
 export const deleteSkill = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const  = req.params. as string;
+    const id = req.params.id as string;
     const userId = req.user!.userId;
 
     const skill = await prisma.skill.findUnique({ where: { id } });
@@ -118,7 +120,7 @@ export const addExperience = async (req: AuthRequest, res: Response, next: NextF
 
 export const deleteExperience = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
-    const  = req.params. as string;
+    const id = req.params.id as string;
     const userId = req.user!.userId;
 
     const exp = await prisma.experience.findUnique({ where: { id } });
@@ -127,6 +129,33 @@ export const deleteExperience = async (req: AuthRequest, res: Response, next: Ne
     await prisma.experience.delete({ where: { id } });
     return sendSuccess(res, null, 'Experience deleted');
   } catch (err) {
+    next(err);
+  }
+};
+
+export const updateExperience = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id as string;
+    const userId = req.user!.userId;
+    const validated = expSchema.partial().parse(req.body);
+
+    const exp = await prisma.experience.findUnique({ where: { id } });
+    if (!exp || exp.userId !== userId) return sendError(res, 404, 'Experience not found');
+
+    const updated = await prisma.experience.update({
+      where: { id },
+      data: {
+        title: validated.title ?? exp.title,
+        company: validated.company ?? exp.company,
+        description: validated.description ?? exp.description,
+        from: validated.startDate ? new Date(validated.startDate) : exp.from,
+        to: validated.endDate !== undefined ? (validated.endDate ? new Date(validated.endDate) : null) : exp.to,
+      },
+    });
+
+    return sendSuccess(res, updated, 'Experience updated');
+  } catch (err: any) {
+    if (err instanceof z.ZodError) return sendError(res, 400, 'Validation Error', (err as any).errors);
     next(err);
   }
 };

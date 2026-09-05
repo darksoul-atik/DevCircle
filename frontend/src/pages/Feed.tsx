@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 import { Link } from 'react-router-dom';
-import { FiMessageSquare, FiHeart, FiArrowDown, FiChevronLeft, FiChevronRight, FiSearch, FiEdit3 } from 'react-icons/fi';
+import { FiMessageSquare, FiArrowUp, FiArrowDown, FiChevronLeft, FiChevronRight, FiSearch, FiEdit3 } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
 import { formatDateTime } from '../utils/date';
@@ -11,7 +11,10 @@ interface Post {
   id: string;
   title: string;
   body: string;
-  author: { name: string; email: string };
+  author: { name: string; email: string; avatar?: string; title?: string | null };
+  community?: { name: string; slug: string };
+  imageUrl?: string;
+  tags?: string[];
   likeCount: number;
   dislikeCount: number;
   commentCount: number;
@@ -64,8 +67,8 @@ export default function Feed() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-4">
-      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="w-full h-full flex flex-col py-6 md:py-10 px-0 md:px-4">
+      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-display tracking-tight text-primary">Discussions</h1>
         
         <div className="flex items-center gap-3 w-full md:w-auto">
@@ -101,7 +104,7 @@ export default function Feed() {
           )}
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6 flex-1">
           {data?.items.map((post: Post) => {
             const isHot = post.score >= 5; // Example threshold for signal
             return (
@@ -114,30 +117,60 @@ export default function Feed() {
                 {isHot && (
                   <div className="absolute left-0 top-0 bottom-0 w-1 bg-signal" title="Trending"></div>
                 )}
+
+                {post.community && (
+                  <div className="absolute top-6 right-6 text-xs font-bold text-accent uppercase tracking-wider">
+                    {post.community.name}
+                  </div>
+                )}
                 
-                <div className="flex items-center gap-3 text-xs font-mono text-muted mb-4">
-                  <Avatar name={post.author.name} size="sm" />
-                  <span className="text-primary font-medium">{post.author.name} (@{post.author.name.toLowerCase().replace(/\s/g, '')})</span>
-                  <span>·</span>
-                  <time>{formatDateTime(post.createdAt)}</time>
-                  {isHot && (
-                    <>
+                <div className="flex items-center gap-3 mb-4">
+                  <Avatar name={post.author.name} url={post.author.avatar} size="md" className="w-10 h-10 text-lg shrink-0" />
+                  <div className="flex flex-col">
+                    <span className="text-primary font-semibold text-sm leading-tight">
+                      {post.author.name}
+                    </span>
+                    <div className="flex items-center gap-1.5 text-xs font-medium text-muted mt-0.5">
+                      <span>{post.author.title || `@${post.author.name.toLowerCase().replace(/\s/g, '')}`}</span>
                       <span>·</span>
-                      <span className="text-signal flex items-center gap-1">Trending</span>
-                    </>
-                  )}
+                      <time>{formatDateTime(post.createdAt)}</time>
+                      {isHot && (
+                        <>
+                          <span>·</span>
+                          <span className="text-signal flex items-center gap-1">Trending</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
 
                 <h2 className="text-xl font-display font-medium text-primary mb-2 group-hover:text-accent transition-colors">
                   {post.title}
                 </h2>
                 
-                <p className="text-sm text-muted line-clamp-2 leading-relaxed mb-4">
-                  {post.body}
-                </p>
+                <div className="text-sm text-muted leading-relaxed mb-4">
+                  <p className="line-clamp-3">{post.body}</p>
+                  {post.body.length > 200 && (
+                    <span className="text-accent font-medium text-xs mt-1 block">... read more</span>
+                  )}
+                </div>
 
-                <div className="flex gap-4 text-xs font-mono text-muted">
-                  <span className="flex items-center gap-1.5"><FiHeart size={14} /> {post.likeCount}</span>
+                {post.tags && post.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {post.tags.map(tag => (
+                      <span key={tag} className="text-xs text-accent bg-accent/10 px-2 py-0.5 rounded-md border border-accent/20">#{tag}</span>
+                    ))}
+                  </div>
+                )}
+
+                {post.imageUrl && (
+                  <div className="w-full mb-4 bg-subtle rounded-md overflow-hidden border border-hairline flex items-center justify-center">
+                    <img src={import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}${post.imageUrl}` : `http://localhost:3000${post.imageUrl}`} alt="" className="w-full h-auto max-h-[500px] object-contain" />
+                  </div>
+                )}
+
+                <div className="flex gap-4 text-sm font-medium text-muted">
+                  <span className="flex items-center gap-1.5"><FiArrowUp size={14} /> {post.likeCount}</span>
                   <span className="flex items-center gap-1.5"><FiArrowDown size={14} /> {post.dislikeCount}</span>
                   <span className="flex items-center gap-1.5"><FiMessageSquare size={14} /> {post.commentCount}</span>
                 </div>

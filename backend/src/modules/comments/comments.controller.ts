@@ -12,7 +12,7 @@ const createCommentSchema = z.object({
 export const createComment = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const validated = createCommentSchema.parse(req.body);
-    const  = req.params.id as string;
+    const postId = req.params.id as string;
     const userId = req.user!.userId;
 
     // Verify post exists
@@ -36,7 +36,7 @@ export const createComment = async (req: AuthRequest, res: Response, next: NextF
         parentCommentId: validated.parentCommentId,
       },
       include: {
-        author: { select: { id: true, name: true, email: true } },
+        author: { select: { id: true, name: true, email: true, avatar: true, title: true } },
         reactions: true,
       }
     });
@@ -59,12 +59,12 @@ export const createComment = async (req: AuthRequest, res: Response, next: NextF
 
 export const getComments = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const  = req.params.id as string;
+    const postId = req.params.id as string;
 
     const comments = await prisma.comment.findMany({
       where: { postId: postId as string },
       include: {
-        author: { select: { id: true, name: true, email: true } },
+        author: { select: { id: true, name: true, email: true, avatar: true, title: true } },
         reactions: true,
       },
       orderBy: { createdAt: 'asc' }, // Older comments first
@@ -104,6 +104,59 @@ export const getComments = async (req: Request, res: Response, next: NextFunctio
     });
 
     return sendSuccess(res, rootComments);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const updateComment = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const commentId = req.params.commentId as string;
+    const validated = createCommentSchema.partial().parse(req.body);
+    const userId = req.user!.userId;
+
+    const comment = await prisma.comment.findUnique({ where: { id: commentId } });
+    if (!comment) return sendError(res, 404, 'Comment not found');
+    if (comment.authorId !== userId) return sendError(res, 403, 'Forbidden');
+
+    const updated = await prisma.comment.update({
+      where: { id: commentId },
+      data: { body: validated.body ?? comment.body },
+      include: {
+        author: { select: { id: true, name: true, email: true, avatar: true, title: true } },
+        reactions: true,
+      }
+    });
+
+    return sendSuccess(res, updated, 'Comment updated');
+  } catch (err: any) {
+    if (err instanceof z.ZodError) {
+      return sendError(res, 400, 'Validation Error', (err as any).errors);
+    }
+    next(err);
+  }
+};
+
+export const deleteComment = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const commentId = req.params.commentId as string;
+    const userId = req.user!.userId;
+
+    const comment = await prisma.comment.findUnique({ where: { id: commentId } });
+    if (!comment) return sendError(res, 404, 'Comment not found');
+    if (comment.authorId !== userId) return sendError(res, 403, 'Forbidden');
+
+    const replies = await prisma.comment.findMany({ where: { parentCommentId: commentId }, select: { id: true } });
+    const replyIds = replies.map(r => r.id);
+    const allCommentIdsToDelete = [commentId, ...replyIds];
+
+    await prisma.$transaction([
+      prisma.reaction.deleteMany({ where: { targetType: 'comment', targetId: { in: allCommentIdsToDelete } } }),
+      prisma.comment.deleteMany({ where: { id: { in: replyIds } } }),
+      prisma.comment.delete({ where: { id: commentId } }),
+    ]);
+
+    return sendSuccess(res, null, 'Comment deleted');
   } catch (err) {
     next(err);
   }

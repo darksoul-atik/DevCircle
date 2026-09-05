@@ -14,6 +14,7 @@ model User {
   email         String         @unique
   passwordHash  String
   avatar        String?
+  title         String?
   bio           String?
   skills        Skill[]
   experiences   Experience[]
@@ -31,7 +32,7 @@ model Community {
   name        String
   slug        String   @unique
   description String?
-  icon        String
+  icon        String?
   createdById String
   createdAt   DateTime @default(now())
   posts       Post[]
@@ -106,16 +107,11 @@ model Reaction {
   createdAt  DateTime @default(now())
   user       User     @relation(fields: [userId], references: [id])
 
-  // Note: Prisma schema does not natively support polymorphic relations directly with targetId 
-  // without explicitly defining the models, but the prompt requested we use targetType and targetId.
-  // We can just keep it as a string field and handle constraints in logic or via raw SQL if needed,
-  // or via Prisma's unique compound index as requested:
-  post    Post?    @relation(fields: [targetId], references: [id], map: "Reaction_Post")
-  comment Comment? @relation(fields: [targetId], references: [id], map: "Reaction_Comment")
-  // Actually, wait, if targetId points to EITHER Post or Comment, we can't cleanly define both relations
-  // on the exact same field if they might collide or if referential integrity is enforced strictly by prisma.
-  // Let's remove the Prisma relations to Post and Comment for targetId to allow polymorphic behavior
-  // as the prompt defined `targetType` and `targetId` as Strings. We will just enforce uniqueness.
+  postId     String?
+  post       Post?    @relation(fields: [postId], references: [id], onDelete: Cascade)
+  
+  commentId  String?
+  comment    Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
 
   @@unique([userId, targetType, targetId])
 }

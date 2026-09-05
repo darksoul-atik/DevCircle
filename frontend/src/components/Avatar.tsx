@@ -31,6 +31,8 @@ function getInitials(name: string) {
 }
 
 export default function Avatar({ url, name, size = 'md', className = '' }: AvatarProps) {
+  const [imageFailed, setImageFailed] = React.useState(false);
+
   const sizeClasses = {
     sm: 'w-6 h-6 text-[10px]',
     md: 'w-8 h-8 text-xs',
@@ -39,10 +41,15 @@ export default function Avatar({ url, name, size = 'md', className = '' }: Avata
 
   const baseClasses = `shrink-0 rounded-full flex items-center justify-center font-bold text-white overflow-hidden ${sizeClasses[size]} ${className}`;
 
-  if (url) {
+  if (url && !imageFailed) {
     return (
       <div className={baseClasses}>
-        <img src={url} alt={name} className="w-full h-full object-cover" />
+        <img 
+          src={url} 
+          alt={name} 
+          className="w-full h-full object-cover bg-subtle" 
+          onError={() => setImageFailed(true)}
+        />
       </div>
     );
   }

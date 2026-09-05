@@ -139,7 +139,7 @@ export default function Register() {
             </h1>
           </div>
           <div className="hero-text-line overflow-hidden">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-bold text-primary tracking-tight leading-tight mb-4 md:mb-6">
+            <h1 className="text-3xl md:text-4xl font-display font-bold text-primary tracking-tight leading-tight mb-4 md:mb-6">
               Conquer.
             </h1>
           </div>
@@ -152,7 +152,7 @@ export default function Register() {
 
         {/* Right Column: Auth Form */}
         <div className="hero-form mx-auto md:ml-auto max-w-sm w-full bg-subtle/50 backdrop-blur-sm border border-hairline p-6 sm:p-8 rounded-xl shadow-sm">
-          <h2 className="text-xl font-display font-medium text-primary mb-6 text-center md:text-left">Create an account</h2>
+          <h2 className="text-xl md:text-2xl font-display font-medium text-primary mb-6 text-center md:text-left">Create an account</h2>
           
           {error && (
             <div className="mb-6 p-3 bg-red-500/10 text-red-600 dark:text-red-400 rounded-md text-sm font-medium border border-red-500/20 flex items-start gap-2">
@@ -163,7 +163,7 @@ export default function Register() {
           
           <form onSubmit={handleSubmit} className="space-y-5">
             <div className="flex flex-col items-center justify-center mb-6">
-              <label className="block text-xs font-mono text-muted mb-3 uppercase tracking-wider">Upload Profile Picture</label>
+              <label className="block text-sm font-medium text-accent mb-3 uppercase tracking-wider">Upload Profile Picture</label>
               <input 
                 type="file" 
                 accept="image/*" 
@@ -201,7 +201,7 @@ export default function Register() {
             </div>
             
             <div>
-              <label className="block text-xs font-mono text-muted mb-1.5 uppercase tracking-wider">Display Name</label>
+              <label className="block text-sm font-medium text-accent mb-1.5 uppercase tracking-wider">Display Name</label>
               <input 
                 type="text" 
                 required
@@ -211,7 +211,7 @@ export default function Register() {
               />
             </div>
             <div>
-              <label className="block text-xs font-mono text-muted mb-1.5 uppercase tracking-wider">Email</label>
+              <label className="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Email</label>
               <input 
                 type="email" 
                 required
@@ -221,7 +221,7 @@ export default function Register() {
               />
             </div>
             <div>
-              <label className="block text-xs font-mono text-muted mb-1.5 uppercase tracking-wider">Password</label>
+              <label className="block text-sm font-medium text-muted mb-1.5 uppercase tracking-wider">Password</label>
               <div className="relative">
                 <input 
                   type={showPassword ? "text" : "password"} 
@@ -251,7 +251,7 @@ export default function Register() {
           </form>
           
           <div className="mt-8 pt-6 border-t border-hairline text-center">
-            <p className="text-sm font-mono text-muted">
+            <p className="text-sm font-medium text-muted">
               Already have an account? <Link to="/login" className="text-primary font-medium hover:text-accent transition-colors">Sign in</Link>
             </p>
           </div>

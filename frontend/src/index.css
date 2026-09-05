@@ -18,8 +18,8 @@
   :root {
     --bg-base: #FFFFFF;
     --bg-subtle: #F6F7F9;
-    --text-primary: #14171F;
-    --text-muted: #5B6270;
+    --text-primary: #000000;
+    --text-muted: #4B5563;
     --accent-primary: #4F46E5;
     --accent-signal: #EA580C;
     --border-hairline: #E5E7EB;
@@ -28,8 +28,8 @@
   .dark {
     --bg-base: #0F1115;
     --bg-subtle: #1A1D23;
-    --text-primary: #F2F3F5;
-    --text-muted: #9095A3;
+    --text-primary: #FFFFFF;
+    --text-muted: #9CA3AF;
     --accent-primary: #818CF8;
     --accent-signal: #FB923C;
     --border-hairline: #2A2E37;
@@ -53,6 +53,38 @@
   input[type="submit"], 
   input[type="reset"] {
     cursor: pointer;
+  }
+
+  ::placeholder {
+    font-size: 0.875rem; /* Equivalent to text-sm. If inputs are text-base, this makes placeholders smaller */
+  }
+
+  /* Make it even smaller if the input itself is text-sm */
+  .text-sm::placeholder {
+    font-size: 0.75rem; /* text-xs */
+  }
+
+  /* Force Tailwind Typography (.prose) to respect our theme colors */
+  .prose {
+    color: var(--text-primary) !important;
+  }
+  .prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6,
+  .prose strong, .prose b, .prose i, .prose em, .prose span {
+    color: var(--text-primary) !important;
+  }
+  .prose a {
+    color: var(--accent) !important;
+  }
+  .prose blockquote {
+    color: var(--text-muted) !important;
+    border-left-color: var(--hairline) !important;
+  }
+  .prose code, .prose pre {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-subtle) !important;
+  }
+  .prose ul > li::marker, .prose ol > li::marker {
+    color: var(--text-muted) !important;
   }
 }
 

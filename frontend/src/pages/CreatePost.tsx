@@ -7,6 +7,8 @@ import { useNavigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import { useQuery } from '@tanstack/react-query';
 import { FiImage, FiX } from 'react-icons/fi';
+import { useAuth } from '../context/AuthContext';
+import Avatar from '../components/Avatar';
 
 const postSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -18,6 +20,7 @@ type PostFormValues = z.infer<typeof postSchema>;
 
 export default function CreatePost() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [error, setError] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState('');
@@ -175,8 +178,8 @@ export default function CreatePost() {
             />
             
             {previewImage ? (
-              <div className="relative rounded-md overflow-hidden border border-hairline group">
-                <img src={previewImage} alt="Preview" className="w-full h-40 object-cover" />
+              <div className="relative rounded-xl overflow-hidden border border-hairline group bg-subtle/50 flex items-center justify-center h-64">
+                <img src={previewImage} alt="Preview" className="max-w-full max-h-full object-contain" />
                 <button
                   type="button"
                   onClick={() => { setFile(null); setPreviewImage(null); if (fileInputRef.current) fileInputRef.current.value = ''; }}
@@ -222,8 +225,17 @@ export default function CreatePost() {
           </div>
           <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
             {previewImage && (
-              <div className="w-full h-48 mb-8 rounded-lg overflow-hidden border border-hairline">
-                <img src={previewImage} alt="Cover Preview" className="w-full h-full object-cover" />
+              <div className="w-full h-80 mb-8 rounded-2xl overflow-hidden border border-hairline bg-subtle/30 flex items-center justify-center">
+                <img src={previewImage} alt="Cover Preview" className="max-w-full max-h-full object-contain" />
+              </div>
+            )}
+            
+            {user && (
+              <div className="flex items-center gap-3 text-sm font-medium text-muted mb-6">
+                <Avatar name={user.name} url={user.avatar} size="sm" />
+                <span className="text-primary">{user.name}</span>
+                <span>·</span>
+                <time>Just now</time>
               </div>
             )}
             

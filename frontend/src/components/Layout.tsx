@@ -1,11 +1,12 @@
-import { useState, useEffect, useRef } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { useRef } from 'react';
+import { Outlet, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useDarkMode } from '../hooks/useDarkMode';
-import { FiSun, FiMoon, FiUser, FiLogOut } from 'react-icons/fi';
+import { FiSun, FiMoon, FiLogOut } from 'react-icons/fi';
 import Sidebar from './Sidebar';
 import MobileNav from './MobileNav';
 import SearchDropdown from './SearchDropdown';
+import Avatar from './Avatar';
 import gsap from 'gsap';
 
 interface LogoProps {
@@ -69,38 +70,14 @@ export function DarkModeToggle({ isDark, toggle }: { isDark: boolean, toggle: ()
 export default function Layout() {
   const { user, logout } = useAuth();
   const { isDark, toggleDarkMode } = useDarkMode();
-  const [scrolled, setScrolled] = useState(false);
-  const location = useLocation();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 40);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
 
   return (
     <div className="min-h-screen flex flex-col transition-colors duration-200">
-      <header 
-        className={`sticky top-0 z-50 transition-all duration-200 border-b ${
-          scrolled 
-            ? 'bg-base/90 backdrop-blur-md border-hairline shadow-sm' 
-            : 'bg-base border-hairline'
-        }`}
-      >
-        <div className="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+      <header className="sticky top-0 z-50 transition-all duration-200 border-b bg-base/70 backdrop-blur-lg border-hairline shadow-sm">
+        <div className="w-full px-4 md:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Logo />
             <nav className="hidden md:flex items-center gap-6">
-              {user && (
-                <Link 
-                  to="/" 
-                  className={`text-sm font-medium transition-colors ${location.pathname === '/' ? 'text-primary' : 'text-muted hover:text-primary'}`}
-                >
-                  Feed
-                </Link>
-              )}
             </nav>
           </div>
           
@@ -113,12 +90,8 @@ export default function Layout() {
 
             {user ? (
               <div className="flex items-center gap-3 ml-2 pl-4 border-l border-hairline">
-                <Link to="/profile/me" className="flex items-center justify-center p-1 rounded-full border border-hairline hover:border-accent transition-colors" title="Profile">
-                  {user.avatar ? (
-                    <img src={user.avatar} alt="Profile" className="w-6 h-6 rounded-full bg-subtle" />
-                  ) : (
-                    <FiUser size={18} className="m-1 text-muted" />
-                  )}
+                <Link to="/profile/me" className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-accent transition-all" title="Profile">
+                  <Avatar url={user.avatar} name={user.name} size="md" />
                 </Link>
                 <button 
                   onClick={() => logout()} 
@@ -145,9 +118,9 @@ export default function Layout() {
       {/* Main content route transition wrapper could go here if we wanted full page anims, 
           but prompt asks for brief subtle fade on page route transitions. 
           We'll add a simple CSS animation keyframe for page loads. */}
-      <div className="flex-1 flex max-w-5xl w-full mx-auto px-4 relative">
+      <div className="flex-1 flex w-full px-4 md:px-8 relative">
         <Sidebar />
-        <main className="flex-1 min-w-0 md:pl-8 pb-16 md:pb-0 animate-in fade-in duration-300">
+        <main className="flex-1 min-w-0 md:pl-8 pb-16 md:pb-0 h-full flex flex-col">
           <Outlet />
         </main>
       </div>

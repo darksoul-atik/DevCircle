@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import client from '../api/client';
 import { formatDateTime } from '../utils/date';
 import Avatar from '../components/Avatar';
-import { FiMessageSquare, FiHeart, FiArrowDown } from 'react-icons/fi';
+import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 
 export default function Favorites() {
   const { data: posts, isLoading } = useQuery({
@@ -44,11 +44,18 @@ export default function Favorites() {
               <h2 className="text-lg font-display font-semibold text-primary mb-2 group-hover:text-accent transition-colors">
                 {post.title}
               </h2>
-              <div className="flex items-center gap-3 text-xs font-mono text-muted mb-4">
-                <Avatar name={post.author.name} size="sm" />
-                <span className="font-medium text-primary">{post.author.name}</span>
-                <span>·</span>
-                <time>{formatDateTime(post.createdAt)}</time>
+              <div className="flex items-center gap-3 mb-4">
+                <Avatar name={post.author.name} url={post.author.avatar} size="md" className="w-10 h-10 text-lg shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-primary font-semibold text-sm leading-tight">
+                    {post.author.name}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-muted mt-0.5">
+                    <span>{post.author.title || `@${post.author.name.toLowerCase().replace(/\s/g, '')}`}</span>
+                    <span>·</span>
+                    <time>{formatDateTime(post.createdAt)}</time>
+                  </div>
+                </div>
               </div>
               <p className="text-sm text-muted line-clamp-2 mb-4 leading-relaxed">
                 {post.body}
@@ -69,7 +76,7 @@ export default function Favorites() {
               )}
               <div className="flex items-center gap-6 text-xs font-mono text-muted">
                 <div className="flex items-center gap-1.5 text-accent">
-                  <FiHeart size={14} className="fill-accent" /> {post.likeCount}
+                  <FiArrowUp size={14} className="text-green-500" /> {post.likeCount}
                 </div>
                 <div className="flex items-center gap-1.5">
                   <FiArrowDown size={14} /> {post.dislikeCount}

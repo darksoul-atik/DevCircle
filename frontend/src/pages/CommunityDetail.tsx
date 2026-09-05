@@ -3,7 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import client from '../api/client';
 import { formatDateTime } from '../utils/date';
 import Avatar from '../components/Avatar';
-import { FiMessageSquare, FiHeart, FiArrowDown } from 'react-icons/fi';
+import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
+import CommunityIcon from '../components/CommunityIcon';
 
 export default function CommunityDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -37,9 +38,7 @@ export default function CommunityDetail() {
     <div className="py-8 space-y-8">
       {/* Community Header */}
       <header className="bg-subtle p-8 rounded-lg border border-hairline flex items-center gap-6">
-        <div className="w-16 h-16 rounded-lg bg-accent text-white flex items-center justify-center text-2xl font-display font-bold shadow-sm">
-          {community.icon ? community.icon.substring(0, 2).toUpperCase() : community.name.substring(0, 2).toUpperCase()}
-        </div>
+        <CommunityIcon icon={community.icon} name={community.name} size="lg" />
         <div>
           <h1 className="text-2xl font-display font-bold text-primary mb-1">{community.name}</h1>
           {community.description && (
@@ -71,11 +70,18 @@ export default function CommunityDetail() {
               <h2 className="text-lg font-display font-semibold text-primary mb-2 group-hover:text-accent transition-colors">
                 {post.title}
               </h2>
-              <div className="flex items-center gap-3 text-xs font-mono text-muted mb-4">
-                <Avatar name={post.author.name} size="sm" />
-                <span className="font-medium text-primary">{post.author.name}</span>
-                <span>·</span>
-                <time>{formatDateTime(post.createdAt)}</time>
+              <div className="flex items-center gap-3 mb-4">
+                <Avatar name={post.author.name} url={post.author.avatar} size="md" className="w-10 h-10 text-lg shrink-0" />
+                <div className="flex flex-col">
+                  <span className="text-primary font-semibold text-sm leading-tight">
+                    {post.author.name}
+                  </span>
+                  <div className="flex items-center gap-1.5 text-xs font-medium text-muted mt-0.5">
+                    <span>{post.author.title || `@${post.author.name.toLowerCase().replace(/\s/g, '')}`}</span>
+                    <span>·</span>
+                    <time>{formatDateTime(post.createdAt)}</time>
+                  </div>
+                </div>
               </div>
               <p className="text-sm text-muted line-clamp-2 mb-4 leading-relaxed">
                 {post.body}
@@ -96,7 +102,7 @@ export default function CommunityDetail() {
               )}
               <div className="flex items-center gap-6 text-xs font-mono text-muted">
                 <div className="flex items-center gap-1.5">
-                  <FiHeart size={14} /> {post.likeCount}
+                  <FiArrowUp size={14} /> {post.likeCount}
                 </div>
                 <div className="flex items-center gap-1.5">
                   <FiArrowDown size={14} /> {post.dislikeCount}

@@ -1,14 +1,13 @@
 import { Link, useLocation } from 'react-router-dom';
-import { FiHome, FiCompass, FiHeart, FiPlusSquare, FiSearch } from 'react-icons/fi';
+import { FiHome, FiHeart, FiPlusSquare, FiPlusCircle } from 'react-icons/fi';
 
 export default function MobileNav() {
   const location = useLocation();
 
   const navItems = [
     { label: 'Feed', path: '/', icon: FiHome },
-    { label: 'Search', path: '/search', icon: FiSearch },
-    { label: 'Post', path: '/create', icon: FiPlusSquare },
-    { label: 'Communities', path: '/communities', icon: FiCompass },
+    { label: 'Add Post', path: '/posts/new', icon: FiPlusSquare },
+    { label: 'Add Comm.', path: '/communities/new', icon: FiPlusCircle },
     { label: 'Favorites', path: '/favorites', icon: FiHeart },
   ];
 

@@ -8,6 +8,7 @@ import CreatePost from './pages/CreatePost';
 import PostDetail from './pages/PostDetail';
 import Profile from './pages/Profile';
 import CommunityDetail from './pages/CommunityDetail';
+import CreateCommunity from './pages/CreateCommunity';
 import Favorites from './pages/Favorites';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -53,6 +54,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          } 
+        />
+        <Route 
+          path="/communities/new" 
+          element={
+            <ProtectedRoute>
+              <CreateCommunity />
             </ProtectedRoute>
           } 
         />
