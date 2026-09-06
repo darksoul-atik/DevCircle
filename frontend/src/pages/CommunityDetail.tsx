@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useRef } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { formatDateTime } from '../utils/date';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
-import EditCommunityModal from '../components/EditCommunityModal';
+
 import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import CommunityIcon from '../components/CommunityIcon';
 import Pagination from '../components/Pagination';
@@ -13,8 +13,17 @@ import Pagination from '../components/Pagination';
 export default function CommunityDetail() {
   const { slug } = useParams<{ slug: string }>();
   const [page, setPage] = useState(1);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { user } = useAuth();
+  
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editIconPreview, setEditIconPreview] = useState<string | null>(null);
+  const [editIconFile, setEditIconFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editError, setEditError] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery({
     queryKey: ['community', slug, page],
@@ -48,43 +57,167 @@ export default function CommunityDetail() {
 
   const { community, items: posts } = data;
 
+  const handleEditStart = () => {
+    setEditName(community.name);
+    setEditDescription(community.description || '');
+    setEditIconPreview(community.icon ? (import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}${community.icon}` : `http://localhost:3000${community.icon}`) : null);
+    setEditIconFile(null);
+    setEditError('');
+    setIsEditing(true);
+  };
+
+  const handleEditCancel = () => {
+    setIsEditing(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setEditIconFile(file);
+      setEditIconPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleEditSave = async () => {
+    setIsSaving(true);
+    setEditError('');
+    try {
+      const formData = new FormData();
+      if (editName !== community.name) formData.append('name', editName);
+      if (editDescription !== community.description) formData.append('description', editDescription);
+      if (editIconFile) formData.append('icon', editIconFile);
+
+      let updatedSlug = community.slug;
+      if (Array.from(formData.keys()).length > 0) {
+        const res = await client.put(`/communities/${community.slug}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        updatedSlug = res.data.data.slug;
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['community', community.slug] });
+      await queryClient.invalidateQueries({ queryKey: ['community', updatedSlug] });
+      await queryClient.invalidateQueries({ queryKey: ['communities'] });
+      
+      setIsEditing(false);
+      
+      if (updatedSlug !== community.slug) {
+        navigate(`/communities/${updatedSlug}`, { replace: true });
+      }
+    } catch (err: any) {
+      setEditError(err.response?.data?.message || 'Failed to update community');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto py-8 space-y-8 px-0 md:px-4">
       {/* Community Header */}
-      <header className="bg-subtle p-8 rounded-lg border border-hairline flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-        <div className="flex items-center gap-6">
-          <CommunityIcon icon={community.icon} name={community.name} size="lg" />
-          <div>
-            <h1 className="text-2xl font-display font-bold text-primary mb-1">{community.name}</h1>
-            {community.description && (
-              <p className="text-muted text-sm mb-3">{community.description}</p>
-            )}
-            
-            {/* Created By Info */}
-            {community.createdBy && (
+      {isEditing ? (
+        <header className="bg-subtle p-8 rounded-lg border border-hairline flex flex-col gap-4">
+          {editError && (
+            <div className="p-3 text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-md">
+              {editError}
+            </div>
+          )}
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex flex-col items-center gap-3 shrink-0">
               <div 
-                className="flex items-center gap-2 mt-2 cursor-pointer group w-fit"
-                onClick={(e) => handleAuthorClick(e, community.createdBy.id)}
+                className="w-24 h-24 rounded-2xl bg-background flex items-center justify-center overflow-hidden border border-hairline cursor-pointer relative group"
+                onClick={() => fileInputRef.current?.click()}
               >
-                <span className="text-xs text-muted">Created by</span>
-                <Avatar url={community.createdBy.avatar} name={community.createdBy.name} size="sm" />
-                <span className="text-sm font-medium text-primary group-hover:text-accent transition-colors">
-                  {community.createdBy.name}
-                </span>
+                {editIconPreview ? (
+                  <img src={editIconPreview} alt="Icon preview" className="w-full h-full object-cover" />
+                ) : (
+                  <div className="text-muted font-display font-bold text-2xl">{editName.substring(0, 2).toUpperCase()}</div>
+                )}
+                <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="text-white text-xs font-medium">Upload</span>
+                </div>
               </div>
-            )}
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleFileChange} 
+                accept="image/*" 
+                className="hidden" 
+              />
+            </div>
+            
+            <div className="flex-1 space-y-4 w-full">
+              <div>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={e => setEditName(e.target.value)}
+                  className="w-full px-4 py-2 bg-background border border-hairline rounded-md text-primary font-display font-bold text-xl focus:outline-none focus:border-accent transition-colors"
+                  placeholder="Community Name"
+                />
+              </div>
+              <div>
+                <textarea
+                  value={editDescription}
+                  onChange={e => setEditDescription(e.target.value)}
+                  className="w-full px-4 py-2 bg-background border border-hairline rounded-md text-primary text-sm focus:outline-none focus:border-accent transition-colors min-h-[80px] resize-y"
+                  placeholder="What is this community about?"
+                />
+              </div>
+            </div>
           </div>
-        </div>
-        
-        {user?.id === community.createdBy?.id && (
-          <button 
-            onClick={() => setIsEditModalOpen(true)}
-            className="px-4 py-2 text-sm font-medium bg-background border border-hairline rounded hover:bg-subtle transition-colors shadow-sm whitespace-nowrap"
-          >
-            Edit Community details
-          </button>
-        )}
-      </header>
+          
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              onClick={handleEditCancel}
+              className="px-4 py-2 text-sm font-medium text-muted hover:text-primary transition-colors border border-hairline rounded hover:bg-background"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleEditSave}
+              disabled={isSaving}
+              className="px-6 py-2 text-sm font-medium bg-accent text-white rounded hover:bg-accent/90 transition-colors disabled:opacity-50"
+            >
+              {isSaving ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </header>
+      ) : (
+        <header className="bg-subtle p-8 rounded-lg border border-hairline flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
+            <CommunityIcon icon={community.icon} name={community.name} size="lg" />
+            <div>
+              <h1 className="text-2xl font-display font-bold text-primary mb-1">{community.name}</h1>
+              {community.description && (
+                <p className="text-muted text-sm mb-3">{community.description}</p>
+              )}
+              
+              {/* Created By Info */}
+              {community.createdBy && (
+                <div 
+                  className="flex items-center gap-2 mt-2 cursor-pointer group w-fit"
+                  onClick={(e) => handleAuthorClick(e, community.createdBy.id)}
+                >
+                  <span className="text-xs text-muted">Created by</span>
+                  <Avatar url={community.createdBy.avatar} name={community.createdBy.name} size="sm" />
+                  <span className="text-sm font-medium text-primary group-hover:text-accent transition-colors">
+                    {community.createdBy.name}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+          
+          {user?.id === community.createdBy?.id && (
+            <button 
+              onClick={handleEditStart}
+              className="px-4 py-2 text-sm font-medium bg-background border border-hairline rounded hover:bg-subtle transition-colors shadow-sm whitespace-nowrap"
+            >
+              Edit Community details
+            </button>
+          )}
+        </header>
+      )}
 
       {/* Posts List */}
       <div className="space-y-4">
@@ -167,12 +300,7 @@ export default function CommunityDetail() {
         />
       )}
 
-      {isEditModalOpen && (
-        <EditCommunityModal 
-          community={community} 
-          onClose={() => setIsEditModalOpen(false)} 
-        />
-      )}
+
     </div>
   );
 }
