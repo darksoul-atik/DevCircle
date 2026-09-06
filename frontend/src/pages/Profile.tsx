@@ -273,8 +273,8 @@ export default function Profile() {
             </div>
           </div>
         ) : (
-          <div className="group max-w-2xl flex gap-6 items-start">
-            <Avatar name={profile.name} url={profile.avatar} size="lg" className="w-20 h-20 text-3xl shrink-0" />
+          <div className="group max-w-2xl flex flex-col md:flex-row gap-4 md:gap-6 items-start">
+            <Avatar name={profile.name} url={profile.avatar} size="lg" className="w-16 h-16 md:w-20 md:h-20 text-3xl shrink-0" />
             <div>
               <h1 className="text-3xl md:text-4xl font-display font-bold text-primary tracking-tight mb-1">{profile.name}</h1>
               <p className="font-mono text-sm text-muted mb-4">{profile.title || `@${handleName}`}</p>

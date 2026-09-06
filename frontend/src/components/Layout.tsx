@@ -56,7 +56,7 @@ export function DarkModeToggle({ isDark, toggle }: { isDark: boolean, toggle: ()
   };
 
   return (
-    <button 
+    <button
       onClick={handleToggle}
       className="p-2 text-muted hover:text-primary transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-md"
       aria-label="Toggle Dark Mode"
@@ -81,12 +81,12 @@ export default function Layout() {
             <nav className="hidden md:flex items-center gap-6">
             </nav>
           </div>
-          
-          <div className="flex items-center gap-4 w-full justify-end">
-            <div className="flex-1 max-w-sm mr-2">
+
+          <div className="flex items-center gap-2 sm:gap-4 w-full justify-end">
+            <div className="flex-1 max-w-[200px] sm:max-w-xs md:max-w-sm mr-1 sm:mr-2">
               <SearchDropdown />
             </div>
-            
+
             <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
 
             {user ? (
@@ -94,8 +94,8 @@ export default function Layout() {
                 <Link to="/profile/me" className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-accent transition-all" title="Profile">
                   <Avatar url={user.avatar} name={user.name} size="md" />
                 </Link>
-                <button 
-                  onClick={() => logout()} 
+                <button
+                  onClick={() => logout()}
                   className="p-2 text-muted hover:text-primary transition-colors"
                   title="Logout"
                 >
@@ -121,7 +121,7 @@ export default function Layout() {
           We'll add a simple CSS animation keyframe for page loads. */}
       <div className="flex-1 flex w-full px-4 md:px-8 relative">
         <Sidebar />
-        <main className="flex-1 min-w-0 md:pl-8 pb-16 md:pb-0 h-full flex flex-col">
+        <main className="flex-1 min-w-0 md:pl-8 pb-16 md:pb-0 h-full flex flex-col w-full">
           <Outlet />
         </main>
       </div>

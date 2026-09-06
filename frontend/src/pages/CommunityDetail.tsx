@@ -133,7 +133,7 @@ export default function CommunityDetail() {
       </Helmet>
       {/* Community Header */}
       {isEditing ? (
-        <header className="bg-subtle p-8 rounded-lg border border-hairline flex flex-col gap-4">
+        <header className="bg-subtle p-4 sm:p-6 md:p-8 rounded-lg border border-hairline flex flex-col gap-4">
           {editError && (
             <div className="p-3 text-sm text-red-500 bg-red-500/10 border border-red-500/20 rounded-md">
               {editError}
@@ -201,7 +201,7 @@ export default function CommunityDetail() {
           </div>
         </header>
       ) : (
-        <header className="bg-subtle p-8 rounded-lg border border-hairline flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <header className="bg-subtle p-4 sm:p-6 md:p-8 rounded-lg border border-hairline flex flex-col md:flex-row items-start md:items-center justify-between gap-4 sm:gap-6">
           <div className="flex items-center gap-6">
             <CommunityIcon icon={community.icon} name={community.name} size="lg" />
             <div>
