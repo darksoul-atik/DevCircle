@@ -82,12 +82,12 @@ export default function UserProfile() {
         )}
       </Helmet>
       {/* Header Band */}
-      <header className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-6 md:p-10 mb-8 shadow-sm relative">
+      <header className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-4 sm:p-6 md:p-10 mb-8 shadow-sm relative">
         <div className="max-w-3xl">
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 mb-6">
             <Avatar name={profile.name} url={profile.avatar} size="lg" className="w-16 h-16 md:w-20 md:h-20 text-3xl shadow-sm" />
             <div>
-              <h1 className="text-3xl md:text-4xl font-display font-bold text-primary mb-1 tracking-tight">{profile.name}</h1>
+              <h1 className="text-2xl md:text-4xl font-display font-bold text-primary mb-1 tracking-tight">{profile.name}</h1>
               {profile.title && (
                 <div className="text-accent font-medium text-lg flex items-center gap-2">
                   {profile.title}

@@ -191,7 +191,7 @@ export default function Profile() {
   return (
     <div className="w-full py-12 px-4 md:px-8">
       {/* Header Band */}
-      <header className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-6 md:p-10 mb-8 shadow-sm relative">
+      <header className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-4 sm:p-6 md:p-10 mb-8 shadow-sm relative">
         {isEditingHeader ? (
           <div className="max-w-lg space-y-4">
             <div className="flex flex-col mb-4">
@@ -276,7 +276,7 @@ export default function Profile() {
           <div className="group max-w-2xl flex flex-col md:flex-row gap-4 md:gap-6 items-start">
             <Avatar name={profile.name} url={profile.avatar} size="lg" className="w-16 h-16 md:w-20 md:h-20 text-3xl shrink-0" />
             <div>
-              <h1 className="text-3xl md:text-4xl font-display font-bold text-primary tracking-tight mb-1">{profile.name}</h1>
+              <h1 className="text-2xl md:text-4xl font-display font-bold text-primary tracking-tight mb-1">{profile.name}</h1>
               <p className="font-mono text-sm text-muted mb-4">{profile.title || `@${handleName}`}</p>
               <p className="text-base text-primary leading-relaxed max-w-xl">
                 {profile.bio || <span className="text-muted italic text-sm">No bio provided.</span>}
@@ -293,7 +293,7 @@ export default function Profile() {
       </header>
 
       {/* Skills Section */}
-      <section className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-6 md:p-10 mb-8 shadow-sm">
+      <section className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-4 sm:p-6 md:p-10 mb-8 shadow-sm">
         <h2 className="text-xl font-display font-medium text-accent mb-6 flex items-center gap-2">
           <FiCode className="text-accent" /> Skills
         </h2>
@@ -345,7 +345,7 @@ export default function Profile() {
       </section>
 
       {/* Experience Section (Timeline) */}
-      <section className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-6 md:p-10 mb-8 shadow-sm">
+      <section className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-4 sm:p-6 md:p-10 mb-8 shadow-sm">
         <h2 className="text-xl font-display font-medium text-accent mb-8 flex items-center gap-2">
           <FiBriefcase className="text-accent" /> Experience
         </h2>

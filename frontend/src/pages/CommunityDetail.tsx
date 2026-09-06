@@ -169,7 +169,7 @@ export default function CommunityDetail() {
                   type="text"
                   value={editName}
                   onChange={e => setEditName(e.target.value)}
-                  className="w-full px-4 py-2 bg-background border border-hairline rounded-md text-primary font-display font-bold text-xl focus:outline-none focus:border-accent transition-colors"
+                  className="w-full px-4 py-2 bg-background border border-hairline rounded-md text-primary font-display font-bold text-lg md:text-xl focus:outline-none focus:border-accent transition-colors"
                   placeholder="Community Name"
                 />
               </div>
@@ -205,7 +205,7 @@ export default function CommunityDetail() {
           <div className="flex items-center gap-6">
             <CommunityIcon icon={community.icon} name={community.name} size="lg" />
             <div>
-              <h1 className="text-2xl font-display font-bold text-primary mb-1">{community.name}</h1>
+              <h1 className="text-xl md:text-2xl font-display font-bold text-primary mb-1">{community.name}</h1>
               {community.description && (
                 <p className="text-muted text-sm mb-3">{community.description}</p>
               )}
@@ -240,7 +240,7 @@ export default function CommunityDetail() {
       {/* Posts List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-display font-medium text-primary">Recent Posts</h2>
+          <h2 className="text-base md:text-lg font-display font-medium text-primary">Recent Posts</h2>
           <Link to="/posts/new" className="text-sm bg-accent text-white px-3 py-1.5 rounded hover:bg-accent/90 transition-colors shadow-sm">
             New Post
           </Link>

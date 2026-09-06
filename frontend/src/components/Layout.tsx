@@ -16,7 +16,7 @@ interface LogoProps {
   textSizeClass?: string;
 }
 
-export function Logo({ className = "", iconSize = 24, textSizeClass = "text-xl" }: LogoProps = {}) {
+export function Logo({ className = "", iconSize = 24, textSizeClass = "text-lg md:text-xl" }: LogoProps = {}) {
   return (
     <Link to="/" className={`flex items-center gap-2 group ${className}`}>
       <svg width={iconSize} height={iconSize} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent transition-transform group-hover:scale-105">
@@ -90,7 +90,7 @@ export default function Layout() {
             <DarkModeToggle isDark={isDark} toggle={toggleDarkMode} />
 
             {user ? (
-              <div className="flex items-center gap-3 ml-2 pl-4 border-l border-hairline">
+              <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2 pl-2 md:pl-4 border-l border-hairline">
                 <Link to="/profile/me" className="flex items-center justify-center rounded-full hover:ring-2 hover:ring-accent transition-all" title="Profile">
                   <Avatar url={user.avatar} name={user.name} size="md" />
                 </Link>
@@ -103,7 +103,7 @@ export default function Layout() {
                 </button>
               </div>
             ) : (
-              <div className="flex items-center gap-3 ml-2 pl-4 border-l border-hairline">
+              <div className="flex items-center gap-2 md:gap-3 ml-1 md:ml-2 pl-2 md:pl-4 border-l border-hairline">
                 <Link to="/login" className="text-sm font-medium text-muted hover:text-primary transition-colors">
                   Sign in
                 </Link>

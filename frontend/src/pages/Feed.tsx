@@ -75,8 +75,8 @@ export default function Feed() {
       <Helmet>
         <title>Feed | DevCircle</title>
       </Helmet>
-      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-3xl font-bold font-display tracking-tight text-primary">Recent Posts</h1>
+      <header className="mb-6 md:mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <h1 className="text-2xl md:text-3xl font-bold font-display tracking-tight text-primary">Recent Posts</h1>
       </header>
 
       {isLoading ? (
@@ -97,11 +97,11 @@ export default function Feed() {
           {data?.items.map((post: Post) => {
             const isHot = post.score >= 5; // Example threshold for signal
             return (
-              <Link 
-                key={post.id} 
-                to={`/posts/${post.id}`} 
-                className={`group block bg-subtle/40 backdrop-blur-md rounded-2xl p-6 border border-hairline/50 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.1)] hover:border-accent/30 transition-all relative overflow-hidden`}
-              >
+                <Link 
+                  key={post.id} 
+                  to={`/posts/${post.id}`} 
+                  className={`group block bg-subtle/40 backdrop-blur-md rounded-xl md:rounded-2xl p-4 sm:p-5 md:p-6 border border-hairline/50 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_4px_25px_rgba(0,0,0,0.1)] hover:border-accent/30 transition-all relative overflow-hidden`}
+                >
 
 
                 {post.community && (
@@ -134,7 +134,7 @@ export default function Feed() {
                   </div>
                 </div>
 
-                <h2 className="text-xl font-display font-medium text-primary mb-2 group-hover:text-accent transition-colors">
+                <h2 className="text-lg md:text-xl font-display font-medium text-primary mb-2 group-hover:text-accent transition-colors">
                   {post.title}
                 </h2>
                 

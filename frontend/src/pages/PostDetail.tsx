@@ -476,7 +476,7 @@ export default function PostDetail() {
                   {post.community.name}
                 </span>
               )}
-              <h1 className="text-3xl md:text-4xl font-display font-bold tracking-tight text-primary leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-display font-bold tracking-tight text-primary leading-tight">
                 {post.title}
               </h1>
             </div>
