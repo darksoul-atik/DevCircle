@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import client from '../api/client';
 import { formatDateTime } from '../utils/date';
 import { useAuth } from '../context/AuthContext';
@@ -124,6 +125,12 @@ export default function CommunityDetail() {
 
   return (
     <div className="w-full max-w-4xl mx-auto py-8 space-y-8 px-0 md:px-4">
+      <Helmet>
+        <title>{community.name} | DevCircle</title>
+        {community.icon && (
+          <link rel="icon" type="image/png" href={import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}${community.icon}` : `http://localhost:3000${community.icon}`} />
+        )}
+      </Helmet>
       {/* Community Header */}
       {isEditing ? (
         <header className="bg-subtle p-8 rounded-lg border border-hairline flex flex-col gap-4">

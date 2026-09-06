@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useParams, Link } from 'react-router-dom';
 import client from '../api/client';
 import ReactMarkdown from 'react-markdown';
+import { Helmet } from 'react-helmet-async';
 import { FiMessageSquare, FiArrowUp, FiArrowDown, FiCornerDownRight, FiEdit2, FiTrash2, FiBookmark } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
@@ -38,7 +39,7 @@ interface Post {
   createdAt: string;
   reactions: Reaction[];
   favorites?: { id: string; userId: string; postId: string }[];
-  community?: { name: string; slug: string };
+  community?: { name: string; slug: string; icon?: string | null };
   imageUrl?: string;
   tags?: string[];
 }
@@ -441,6 +442,12 @@ export default function PostDetail() {
 
   return (
     <div className="max-w-4xl mx-auto py-12 px-4 relative pb-32">
+      <Helmet>
+        <title>{post.title} | DevCircle</title>
+        {post.community?.icon && (
+          <link rel="icon" type="image/png" href={import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}${post.community.icon}` : `http://localhost:3000${post.community.icon}`} />
+        )}
+      </Helmet>
       <article className="mb-12 bg-subtle/40 backdrop-blur-md rounded-3xl p-6 sm:p-10 border border-hairline/50 shadow-[0_4px_30px_rgba(0,0,0,0.05)]">
         {isEditingPost ? (
           <form onSubmit={(e) => { e.preventDefault(); editPostMutation.mutate({ title: editTitle, body: editPostBody }); }} className="mb-8">

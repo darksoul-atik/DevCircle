@@ -4,6 +4,7 @@ import client from '../api/client';
 import { FiBriefcase, FiCode } from 'react-icons/fi';
 import Avatar from '../components/Avatar';
 import { useAuth } from '../context/AuthContext';
+import { Helmet } from 'react-helmet-async';
 
 interface Skill {
   id: string;
@@ -74,6 +75,12 @@ export default function UserProfile() {
 
   return (
     <div className="w-full py-12 px-4 md:px-8">
+      <Helmet>
+        <title>{profile.name} | DevCircle</title>
+        {profile.avatar && (
+          <link rel="icon" type="image/png" href={import.meta.env.VITE_API_URL ? `${import.meta.env.VITE_API_URL}${profile.avatar}` : `http://localhost:3000${profile.avatar}`} />
+        )}
+      </Helmet>
       {/* Header Band */}
       <header className="bg-subtle/40 backdrop-blur-md border border-hairline rounded-2xl p-6 md:p-10 mb-8 shadow-sm relative">
         <div className="max-w-3xl">

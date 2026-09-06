@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import client from '../api/client';
 import { Link, useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import { useAuth } from '../context/AuthContext';
 import Avatar from '../components/Avatar';
@@ -60,6 +61,7 @@ export default function Feed() {
   if (isError) {
     return (
       <div className="max-w-3xl mx-auto py-12 px-4 text-center">
+
         <p className="text-muted mb-4">Error loading the feed: {(error as any)?.response?.data?.message || 'Server unreachable'}</p>
         <button onClick={() => window.location.reload()} className="px-4 py-2 border border-hairline rounded-md text-sm font-medium hover:bg-subtle transition-colors">
           Retry Connection
@@ -70,6 +72,9 @@ export default function Feed() {
 
   return (
     <div className="w-full h-full flex flex-col py-6 md:py-10 px-0 md:px-4">
+      <Helmet>
+        <title>Feed | DevCircle</title>
+      </Helmet>
       <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-3xl font-bold font-display tracking-tight text-primary">Recent Posts</h1>
       </header>

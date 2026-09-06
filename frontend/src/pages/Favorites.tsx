@@ -4,6 +4,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import client from '../api/client';
 import { formatDateTime } from '../utils/date';
 import Avatar from '../components/Avatar';
+import { Helmet } from 'react-helmet-async';
 import { FiMessageSquare, FiArrowUp, FiArrowDown } from 'react-icons/fi';
 import Pagination from '../components/Pagination';
 
@@ -39,6 +40,9 @@ export default function Favorites() {
 
   return (
     <div className="w-full max-w-4xl mx-auto py-8 px-0 md:px-4">
+      <Helmet>
+        <title>Favorites | DevCircle</title>
+      </Helmet>
       <h1 className="text-2xl font-display font-bold text-primary mb-8 px-4 md:px-0">Favorites</h1>
       
       <div className="space-y-4">
