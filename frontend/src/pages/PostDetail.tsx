@@ -167,7 +167,7 @@ function CommentNode({ comment, postId }: { comment: Comment, postId: string }) 
       queryClient.setQueryData(['comments', postId], (old: any) => old ? updateTree(old) : old);
       return { previousComments };
     },
-    onError: (err, newTodo, context: any) => {
+    onError: (_err, _variables, context: any) => {
       if (context?.previousComments) {
         queryClient.setQueryData(['comments', postId], context.previousComments);
       }
@@ -408,7 +408,7 @@ export default function PostDetail() {
 
       return { previousPost };
     },
-    onError: (err, newTodo, context: any) => {
+    onError: (_err, _variables, context: any) => {
       if (context?.previousPost) {
         queryClient.setQueryData(['post', id], context.previousPost);
       }
