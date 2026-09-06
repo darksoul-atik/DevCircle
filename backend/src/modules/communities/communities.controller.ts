@@ -81,6 +81,7 @@ export const getCommunityPosts = async (req: Request, res: Response, next: NextF
     const community = await prisma.community.findUnique({ 
       where: { slug },
       include: {
+        // @ts-ignore - The IDE TS server sometimes fails to recognize the createdBy relation
         createdBy: { select: { id: true, name: true, title: true, avatar: true } }
       }
     });

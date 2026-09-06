@@ -83,12 +83,23 @@ export default function CommunityDetail() {
     setEditError('');
     try {
       const formData = new FormData();
-      if (editName !== community.name) formData.append('name', editName);
-      if (editDescription !== community.description) formData.append('description', editDescription);
-      if (editIconFile) formData.append('icon', editIconFile);
+      let hasChanges = false;
+      
+      if (editName !== community.name) {
+        formData.append('name', editName);
+        hasChanges = true;
+      }
+      if (editDescription !== community.description) {
+        formData.append('description', editDescription);
+        hasChanges = true;
+      }
+      if (editIconFile) {
+        formData.append('icon', editIconFile);
+        hasChanges = true;
+      }
 
       let updatedSlug = community.slug;
-      if (Array.from(formData.keys()).length > 0) {
+      if (hasChanges) {
         const res = await client.put(`/communities/${community.slug}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
